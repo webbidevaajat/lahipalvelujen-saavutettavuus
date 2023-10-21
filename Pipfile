@@ -8,6 +8,7 @@ pandas = "*"
 geopandas = "*"
 numpy = "*"
 osmnx = "*"
+pyyaml = "*"
 
 [dev-packages]
 
