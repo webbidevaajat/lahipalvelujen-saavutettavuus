@@ -1,6 +1,8 @@
-default:
+test:
   services: 
-    amenities: "//corp.pbwan.net/fi/FIHEL300/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/OSM/osm_amenities_Vantaa.gpkg"
-  network: //corp.pbwan.net/fi/FIHEL300/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/OSM/osm_ways_Vantaa.gpkg
-  grid: "//corp.pbwan.net/fi/FIHEL300/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Uusimaa grid 250m/Uusimaa_250m.gpkg"
+    school: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_school.gpkg"
+    restaurant: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_restaurant.gpkg"
+    kindergarten: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_kindergarten.gpkg"
+  network: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_ways_test.gpkg"
+  zones: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test.gpkg"
   
