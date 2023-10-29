@@ -1,6 +1,8 @@
 
+import numpy as np
+
 class Destination(object):
-    def __init__(self, id, geom, category):
+    def __init__(self, id, geom, category, provider):
         """
         Origin point for which accessibility is calculted.
         
@@ -15,6 +17,23 @@ class Destination(object):
         self.geom = geom
         self.centroid = geom.centroid
         self.category = category
+        self.provider = provider
+        self.admin_region = "Vantaa"
+    
+    def get_distance(self, origin):
+        """
+        Get distances from origin.
+        
+        Parameters
+        ----------
+        origin : datatypes.origin.Origin
+            Origin to search distance into.
+        """
+        return self.centroid.distance(origin.centroid)
+
+    def get_dist_decay(self, origin):
+        b = -1
+        return np.exp(b * self.get_distance(origin) / 1000)
     
     @property
     def usage(self):
