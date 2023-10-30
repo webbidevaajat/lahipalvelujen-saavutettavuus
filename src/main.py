@@ -1,7 +1,7 @@
 
+import sys
 import yaml
 import geopandas as gpd
-import numpy as np
 import matplotlib.pyplot as plt
 from datatypes.origin import Origin
 from datatypes.destination import Destination
@@ -12,22 +12,32 @@ from datatypes.destination import Destination
 config = yaml.safe_load(open("config.yml"))
 
 # Read files
-network = gpd.read_file(config["test"]["network"], engine = "pyogrio")
-schools = gpd.read_file(config["test"]["services"]["school"], engine = "pyogrio")
-kindergartens = gpd.read_file(config["test"]["services"]["kindergarten"], engine = "pyogrio")
-restaurants = gpd.read_file(config["test"]["services"]["restaurant"], engine = "pyogrio")
-zones = gpd.read_file(config["test"]["zones"], engine = "pyogrio")
 
-# Tranform to local coordinates
+try:
+  print("Use environment", sys.argv[1])
+  env = sys.argv[1]
+except:
+  print("No enviroment set. Using test enviroment.")
+  env = "test"
+
+grid = gpd.read_file(config[env]["origins"], engine = "pyogrio")
+network = gpd.read_file(config[env]["network"], engine = "pyogrio")
+schools = gpd.read_file(config[env]["services"]["school"], engine = "pyogrio")
+kindergartens = gpd.read_file(config[env]["services"]["kindergarten"], engine = "pyogrio")
+restaurants = gpd.read_file(config[env]["services"]["restaurant"], engine = "pyogrio")
+
+# Transform to local coordinates
 CRS = 'EPSG:3879'
+grid = grid.to_crs(CRS)
 network = network.to_crs(CRS)
 schools = schools.to_crs(CRS)
-zones = zones.to_crs(CRS)
+kindergartens = kindergartens.to_crs(CRS)
+restaurants = restaurants.to_crs(CRS)
 
-# Add id to zones
-zones["id"] = zones.index + 1
-kindergartens["id"] = kindergartens.index + 1
+# Add id to spatial data
+grid["id"] = grid.index + 1
 schools["id"] = schools.index + 1
+kindergartens["id"] = kindergartens.index + 1
 restaurants["id"] = restaurants.index + 1
 
 # Create objects -----
@@ -48,7 +58,7 @@ for index, row in restaurants.iterrows():
 
 # Create origin objects
 origins = []
-for index, row in zones.iterrows():
+for index, row in grid.iterrows():
     origins.append(
         Origin(
             id = row["id"], 

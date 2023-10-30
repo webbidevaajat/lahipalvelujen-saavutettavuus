@@ -1,8 +1,13 @@
+default:
+  municipalities: "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Tilastokeskus/kunnat_2023.gpkg"
+  basemap:
+    roads: "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Digiroad/digiroad_toimin_vantaa.gpkg"
+    railways: "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_railways_finland.gpkg"
+
 test:
+  origins: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test.gpkg"
+  network: "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg"
   services: 
     school: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_school.gpkg"
     restaurant: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_restaurant.gpkg"
     kindergarten: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_kindergarten.gpkg"
-  network: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_ways_test.gpkg"
-  zones: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test.gpkg"
-  
