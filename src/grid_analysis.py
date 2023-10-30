@@ -71,7 +71,7 @@ for o in origins:
 # Perform analysis -----
 
 res = gpd.GeoDataFrame({"geometry": [o.geom for o in origins],
-                        "access_prob": [o.access_prob() for o in origins]}, 
+                        "a_index1": [o.accessibility_index1() for o in origins]}, 
                         geometry="geometry", crs=CRS)
 
 
@@ -83,12 +83,12 @@ fig, ax = plt.subplots(figsize=(12, 8))
 # Visualize the travel times into 9 classes using "Quantiles" classification scheme
 res.plot(
     ax=ax,
-    column="access_prob", 
+    column="a_index1", 
     linewidth=0.03,
     cmap="viridis",
     alpha=0.9,
     legend=True,
-    legend_kwds={"label": "Accessibility Index", "orientation": "vertical"},
+    legend_kwds={"label": "Accessibility Index1", "orientation": "vertical"},
 )
 
 # Add roads on top of the grid
@@ -100,7 +100,7 @@ ax.set_axis_off()
 plt.tight_layout()
 
 # Save the figure as png file with resolution of 300 dpi
-outfp = "results/static_map.png"
+outfp = "results/a_index1.png"
 plt.savefig(outfp, dpi=300)
 
 plt.show()

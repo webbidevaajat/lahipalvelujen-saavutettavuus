@@ -29,10 +29,27 @@ class Origin(object):
             self.destinations = list(compress(self.destinations, mask))
 
 
+    def accessibility_index1(self):
+        """
+        Accessibility Index calculation option 1.
+        AIndex is based on usage rate of service type and distance decay to location.
 
-    def access_prob(self):
-        points = list()
+        """
+        idx = list()
+        # calculate over all destinations within origin radius
         for destination in self.destinations:
-            points.append(destination.get_dist_decay(self) * destination.usage)
-        return sum(points)
+            idx.append(destination.get_dist_decay(self) * destination.usage)
+        # return sum for origin
+        return sum(idx)
+    
+    def accessibility_index2(self):
+        """
+        Accessibility Index calculation option 2.
+        AIndex is calculated as mean time for closest service in each category.
+
+        """
+        idx = list()
+        for destination in self.destinations:
+            idx.append(destination.get_dist_decay(self) * destination.usage)
+        return sum(idx)
     
