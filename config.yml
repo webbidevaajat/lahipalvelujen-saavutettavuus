@@ -8,6 +8,10 @@ test:
   origins: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test.gpkg"
   network: "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg"
   services: 
-    school: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_school.gpkg"
-    restaurant: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_restaurant.gpkg"
-    kindergarten: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/osm_amenity_kindergarten.gpkg"
+    culture: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/kulttuuri.gpkg"
+    sports: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/liikuntapaikka.gpkg"
+    health: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/terveyspalvelut.gpkg"
+    bank_post: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ppv.gpkg"
+    school: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/koulut_opiskelu.gpkg"
+    restaurant: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ravintolat.gpkg"
+    kindergarten: "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/paivahoito.gpkg"
