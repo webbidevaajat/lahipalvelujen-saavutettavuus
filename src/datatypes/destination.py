@@ -1,8 +1,10 @@
 
 import numpy as np
+import json
 
 class Destination(object):
-    def __init__(self, id, geom, category, provider):
+    id_counter = 0
+    def __init__(self, category, usage, provider, geometry, admin, admin_region):
         """
         Origin point for which accessibility is calculted.
         
@@ -13,12 +15,15 @@ class Destination(object):
         geom : geopandas.geoseries.GeoSeries
             Geometry of origin zone or point.
         """
-        self.id = id
-        self.geom = geom
-        self.centroid = geom.centroid
+        self.id = Destination.id_counter
+        Destination.id_counter += 1
         self.category = category
+        self.usage = usage
+        self.admin = admin
+        self.admin_region = admin_region
         self.provider = provider
-        self.admin_region = "Vantaa"
+        self.geometry = geometry
+        self.centroid = geometry.centroid
     
     def get_distance(self, origin):
         """
@@ -34,17 +39,3 @@ class Destination(object):
     def get_dist_decay(self, origin):
         b = -1
         return np.exp(b * self.get_distance(origin) / 1000)
-    
-    @property
-    def usage(self):
-        usage_rates = {
-            "kindergarten": 0.06,
-            "school": 0.16,
-            "errands": 0.03,
-            "healthcare": 0.06,
-            "groceries": 0.48,
-            "leisure": 0.03,
-            "restaurant": 0.06,
-            "sports_facility": 0.10,
-        }
-        return usage_rates[self.category]

@@ -1,107 +1,108 @@
 
 import sys
-import yaml
+import json
 import geopandas as gpd
+import numpy as np
 import matplotlib.pyplot as plt
+from plotting import plot_grid
 from datatypes.origin import Origin
 from datatypes.destination import Destination
 
-# Prepare data -----
+# Set up config env -----
 
 # Open yaml config file
-config = yaml.safe_load(open("config.yml"))
-
-# Read files
+with open('config.json') as f:
+   config = json.load(f)
 
 try:
   print("Use environment", sys.argv[1])
-  env = sys.argv[1]
+  config = config[sys.argv[1]]
 except:
-  print("No enviroment set. Using test enviroment.")
-  env = "test"
+  print("No enviroment set. Using test enviroment ..")
+  config = config["test"]
 
-grid = gpd.read_file(config[env]["origins"], engine = "pyogrio")
-network = gpd.read_file(config[env]["network"], engine = "pyogrio")
-schools = gpd.read_file(config[env]["services"]["school"], engine = "pyogrio")
-kindergartens = gpd.read_file(config[env]["services"]["kindergarten"], engine = "pyogrio")
-restaurants = gpd.read_file(config[env]["services"]["restaurant"], engine = "pyogrio")
+# Load admin regions ----
 
-# Transform to local coordinates
-CRS = 'EPSG:3879'
-grid = grid.to_crs(CRS)
-network = network.to_crs(CRS)
-schools = schools.to_crs(CRS)
-kindergartens = kindergartens.to_crs(CRS)
-restaurants = restaurants.to_crs(CRS)
+municipalities = gpd.read_file(config["municipalities"]["regions"], engine = "pyogrio")
+municipalities["municipality"] = municipalities[config["municipalities"]["column_name"]]
+municipalities = municipalities.to_crs(config["crs"])
 
-# Add id to spatial data
-grid["id"] = grid.index + 1
-schools["id"] = schools.index + 1
-kindergartens["id"] = kindergartens.index + 1
-restaurants["id"] = restaurants.index + 1
+# Create destination objects ----
 
-# Create objects -----
+print("Create destination objects ..")
+destinations = list()
+for service_type in config["services"]:
+    gdf = gpd.read_file(config["services"][service_type], engine = "pyogrio")
+    gdf = gdf.to_crs(config["crs"])
+    gdf = gdf.sjoin(municipalities, predicate='within')
+    for index, row in gdf.iterrows():
+      destinations.append(
+         Destination(
+            category = service_type, 
+            geometry = row["geometry"],
+            usage = config["usage"][service_type],
+            provider = "goverment",
+            admin = config["admin"][service_type],
+            admin_region = row["municipality"]
+        )
+    )
 
-# Create destination objects
-destinations = []
-for index, row in schools.iterrows():
-    destinations.append(Destination(id = row["id"], geom = row["geometry"], 
-                                    category = "school", provider = "goverment"))
+d_geom = gpd.GeoDataFrame({
+            "geometry": [d.centroid for d in destinations], 
+            "id": [d.id for d in destinations]}, 
+            geometry="geometry", crs=config["crs"])
 
-for index, row in kindergartens.iterrows():
-    destinations.append(Destination(id = row["id"], geom = row["geometry"], 
-                                    category = "kindergarten", provider = "goverment"))
+# Prepare origins -----
 
-for index, row in restaurants.iterrows():
-    destinations.append(Destination(id = row["id"], geom = row["geometry"], 
-                                    category = "restaurant", provider = "private"))
+print("Create origin objects ..")
+grid = gpd.read_file(config["origins"], engine = "pyogrio")
+grid = grid.to_crs(config["crs"])
+grid = grid.sjoin(municipalities, predicate='within')
 
-# Create origin objects
 origins = []
 for index, row in grid.iterrows():
     origins.append(
         Origin(
-            id = row["id"], 
-            geom = row["geometry"]
+            geom = row["geometry"],
+            admin_region = row["municipality"]
     ))
 
+print("Add destinations to origins ..")
 for o in origins:
-    o.set_destinations(destinations, 3000)
+    # Only add if within buffer
+    o.set_destinations(destinations)
+
+# Network to calculate distances ----
+
+#network = gpd.read_file(config["network"], engine = "pyogrio")
+#network = network.to_crs(config["crs"])
 
 # Perform analysis -----
 
-res = gpd.GeoDataFrame({"geometry": [o.geom for o in origins],
-                        "a_index1": [o.accessibility_index1() for o in origins],
-                        "a_index2": [o.accessibility_index2(categories = list(["school", "kindergarten", "restaurant"])) for o in origins]
-                        }, 
-                        geometry="geometry", crs=CRS)
+print("Perform analysis ..")
+res = gpd.GeoDataFrame({
+   "geometry": [o.geom for o in origins],
+   "a1_school": [o.accessibility_index1("school") for o in origins],
+   "a1_restaurant": [o.accessibility_index1("restaurant") for o in origins],
+   "a1_sports": [o.accessibility_index1("sports") for o in origins],
+   "a1_health": [o.accessibility_index1("health") for o in origins],
+   "a1_total": [o.accessibility_index1(config["services"]) for o in origins],
+   "a2_school": [o.accessibility_index2("school") for o in origins],
+   "a2_total": [o.accessibility_index2(config["services"]) for o in origins]
+   }, geometry="geometry", crs=config["crs"])
+
+cols = res.columns[res.columns.str.startswith('a1')]
+for column in cols:
+    res[column] = 100 * res[column] / max(res[column])
 
 # Plot ----
 
-# Create one subplot. Control figure size in here.
-fig, ax = plt.subplots(figsize=(12, 8))
+print("Plot analysis ..")
+plot_grid(config, res, "a1_school", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Koulut")
+plot_grid(config, res, "a1_restaurant", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Ravintolat")
+plot_grid(config, res, "a1_sports", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Liikuntapaikat")
+plot_grid(config, res, "a1_health", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Terveyspalvelut")
+plot_grid(config, res, "a1_total", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Yhdistelmä")
 
-# Visualize the travel times into 9 classes using "Quantiles" classification scheme
-res.plot(
-    ax=ax,
-    column="a_index2", 
-    linewidth=0.03,
-    cmap="viridis_r",
-    alpha=0.9,
-    legend=True,
-    legend_kwds={"label": "Accessibility Index2", "orientation": "vertical"},
-)
-
-# Add roads on top of the grid
-# (use ax parameter to define the map on top of which the second items are plotted)
-network.plot(ax=ax, color="white", linewidth=0.1)
-
-# Remove the empty white-space around the axes
-ax.set_axis_off()
-plt.tight_layout()
-
-# Save the figure as png file with resolution of 300 dpi
-outfp = "results/a_index1.png"
-plt.savefig(outfp, dpi=300)
-
-plt.show()
+plot_grid(config, res, "a2_school", "Purples", label = "Lyhin matka-aika palveluun", title = "Koulut")
+plot_grid(config, res, "a2_total", "Purples", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")

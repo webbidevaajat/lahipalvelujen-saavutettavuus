@@ -1,8 +1,7 @@
 
-from itertools import compress
-
 class Origin(object):
-    def __init__(self, id, geom):
+    id_counter = 0
+    def __init__(self, geom, admin_region):
         """
         Origin point for which accessibility is calculted.
         
@@ -13,23 +12,29 @@ class Origin(object):
         geom : shapely.geometry
             Geometry of origin zone or point.
         """
-        self.id = id
+        self.id = Origin.id_counter
+        Origin.id_counter += 1
         self.geom = geom
         self.centroid = geom.centroid
         self.name = None
-        self.admin_region = "Vantaa"
+        self.admin_region = admin_region
 
-    def set_destinations(self, destinations, radius, admin_boundary = False):
-        # Keep only destination within buffer
-        self.buffer = self.centroid.buffer(radius)
-        mask = [d.centroid.within(self.buffer) for d in destinations]
-        self.destinations = list(compress(destinations, mask))
-        if admin_boundary:
-            mask = [d.admin_region == self.admin_region for d in self.destinations]
-            self.destinations = list(compress(self.destinations, mask))
+    def set_destinations(self, destinations, radius = 3000):
+        """
+        Keep only destination within buffer
+        Check if destination has admin restriction and filter with that
+        """
+        self.destinations = list()
+        buffer = self.centroid.buffer(radius)
+        for d in destinations:
+            if d.centroid.within(buffer):
+                if d.admin:
+                    if d.admin_region == self.admin_region:
+                        self.destinations.append(d)
+                else: 
+                    self.destinations.append(d)
             
     def get_closest(self, category):
-         
         distances = list()
         for destination in self.destinations:
             distances.append(destination.get_distance(self))
@@ -39,7 +44,7 @@ class Origin(object):
         else:
             return (3000 / 1000 / (5 / 60)) # buffer radius
 
-    def accessibility_index1(self):
+    def accessibility_index1(self, categories):
         """
         Accessibility Index calculation option 1.
         AIndex is based on usage rate of service type and distance decay to location.
@@ -47,8 +52,9 @@ class Origin(object):
         """
         idx = list()
         # calculate over all destinations within origin radius
-        for destination in self.destinations:
-            idx.append(destination.get_dist_decay(self) * destination.usage)
+        for d in self.destinations:
+            if d.category in categories:
+                idx.append(d.get_dist_decay(self) * d.usage)
         # return sum for origin
         return sum(idx)
     
