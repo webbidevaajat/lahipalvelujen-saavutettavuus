@@ -1,0 +1,61 @@
+
+{
+    "test": {
+        "crs": "EPSG:3879",
+        "municipalities": {
+            "regions":"N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Tilastokeskus/kunnat_2023.gpkg", 
+            "column_name": "name"
+        },
+        "admin_key": "name",
+        "origins": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test_250m.gpkg",
+        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
+        "services": {
+            "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/paivahoito.gpkg",
+            "school": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/koulut_opiskelu.gpkg",
+            "bank_post": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ppv.gpkg",
+            "culture": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/kulttuuri.gpkg",
+            "sports": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/liikuntapaikka.gpkg",
+            "health": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/terveyspalvelut.gpkg",
+            "restaurant": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ravintolat.gpkg"
+        },
+        "usage": {
+            "kindergarten": 0.06,
+            "school": 0.16,
+            "bank_post": 0.03,
+            "culture": 0.03,
+            "sports": 0.10,
+            "health": 0.06,
+            "restaurant": 0.06,
+            "groceries": 0.31,
+            "other_shops": 0.17
+        },
+        "provider": {
+            "kindergarten": "goverment",
+            "school": "goverment",
+            "bank_post": "private",
+            "culture": "private",
+            "sports": "goverment",
+            "health": "goverment",
+            "restaurant": "private",
+            "groceries": "private",
+            "other_shops": "private"
+        },
+        "admin": {
+            "kindergarten": "True",
+            "school": "True",
+            "bank_post": "False",
+            "culture": "False",
+            "sports": "False",
+            "health": "False",
+            "restaurant": "False",
+            "groceries": "False",
+            "other_shops": "False"
+        },
+        "basemap": {
+            "roads": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Digiroad/digiroad_toimin_vantaa.gpkg",
+            "railways": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_railways_finland.gpkg"
+        }
+    }
+}
+
+  
