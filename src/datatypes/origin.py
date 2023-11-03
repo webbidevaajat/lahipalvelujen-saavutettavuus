@@ -27,7 +27,17 @@ class Origin(object):
         if admin_boundary:
             mask = [d.admin_region == self.admin_region for d in self.destinations]
             self.destinations = list(compress(self.destinations, mask))
-
+            
+    def get_closest(self, category):
+         
+        distances = list()
+        for destination in self.destinations:
+            distances.append(destination.get_distance(self))
+        if distances: 
+            # return shortest time, mins
+            return (min(distances) / 1000 / (5 / 60))
+        else:
+            return (3000 / 1000 / (5 / 60)) # buffer radius
 
     def accessibility_index1(self):
         """
@@ -42,14 +52,20 @@ class Origin(object):
         # return sum for origin
         return sum(idx)
     
-    def accessibility_index2(self):
+    def accessibility_index2(self, categories):
         """
         Accessibility Index calculation option 2.
         AIndex is calculated as mean time for closest service in each category.
-
+        
         """
         idx = list()
-        for destination in self.destinations:
-            idx.append(destination.get_dist_decay(self) * destination.usage)
-        return sum(idx)
+        # calculate over all destinations within origin radius
+        for category in categories:
+            idx.append(self.get_closest(category))
+        
+        # return mean of min travel times
+        if idx:
+            return (sum(idx) / len(idx))
+        else:
+            return (3000 / 1000 / (5 / 60)) # buffer radius
     
