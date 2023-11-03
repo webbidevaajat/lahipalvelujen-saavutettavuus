@@ -11,8 +11,4 @@ accessibility_indices = {
       "cmap": "viridis_r"}
 
   }
-
-test = {
-  "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg"
-}
   

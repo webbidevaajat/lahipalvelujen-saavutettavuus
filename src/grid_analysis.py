@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from datatypes.origin import Origin
 from datatypes.destination import Destination
 from parameters.parameters import plot_map
-import config
 
 # Prepare data -----
 
