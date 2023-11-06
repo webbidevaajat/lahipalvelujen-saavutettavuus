@@ -28,7 +28,7 @@ class Origin(object):
         buffer = self.centroid.buffer(radius)
         for d in destinations:
             if d.centroid.within(buffer):
-                if d.admin:
+                if d.admin_matters:
                     if d.admin_region == self.admin_region:
                         self.destinations.append(d)
                 else: 

@@ -4,7 +4,7 @@ import json
 
 class Destination(object):
     id_counter = 0
-    def __init__(self, category, usage, provider, geometry, admin, admin_region):
+    def __init__(self, category, usage, provider, geometry, admin_matters, admin_region):
         """
         Origin point for which accessibility is calculted.
         
@@ -19,7 +19,7 @@ class Destination(object):
         Destination.id_counter += 1
         self.category = category
         self.usage = usage
-        self.admin = admin
+        self.admin_matters = admin_matters
         self.admin_region = admin_region
         self.provider = provider
         self.geometry = geometry

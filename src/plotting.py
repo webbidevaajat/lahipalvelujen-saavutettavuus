@@ -1,10 +1,21 @@
+
 import matplotlib.pyplot as plt
 import geopandas as gpd
+import json
 
-def plot_grid(config, data, colname, cmap = "viridis", label = "Accessibility Index", title = ""):
+# Open yaml config file
+with open('config.json') as f:
+   config = json.load(f)
+
+config_map = config["basemap"]
+
+def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", title = ""):
     """
     Plot function for accessibility graphs.
     """
+    
+    print("Exported {} accessibility map ..".format(colname))
+
     # Create one subplot. Control figure size in here.
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -22,21 +33,21 @@ def plot_grid(config, data, colname, cmap = "viridis", label = "Accessibility In
     # Add roads on top of the grid
     # (use ax parameter to define the map on top of which the second items are plotted)
 
-    network = gpd.read_file(config["network"], engine = "pyogrio")
-    network = network.to_crs(config["crs"])
-    highway = gpd.read_file(config["basemap"]["roads"], engine = "pyogrio")
+    paths = gpd.read_file(config_map["paths"], engine = "pyogrio")
+    paths = paths.to_crs(config["crs"])
+    highway = gpd.read_file(config_map["roads"], engine = "pyogrio")
     highway = highway.to_crs(config["crs"])
-    railways = gpd.read_file(config["basemap"]["railways"], engine = "pyogrio")
+    railways = gpd.read_file(config_map["railways"], engine = "pyogrio")
     railways = railways.to_crs(config["crs"])
 
-    network.plot(ax=ax, color="white", linewidth=0.01)
-    highway.plot(ax=ax, color="white", linewidth=0.2)
-    railways.plot(ax=ax, color="white", linestyle="-", linewidth=0.3)
-    railways.plot(ax=ax, color="black", linestyle="--", linewidth=0.3)
+    paths.plot(ax=ax, color="white", linewidth=0.1)
+    highway.plot(ax=ax, color="white", linewidth=0.5)
+    railways.plot(ax=ax, color="white", linestyle="-", linewidth=0.6)
+    railways.plot(ax=ax, color="black", linestyle="--", linewidth=0.6)
 
     # Remove the empty white-space around the axes
     ax.set_axis_off()
-    plt.title(title)
+    plt.title(title, fontdict = {'fontsize':15})
     plt.tight_layout()
 
     # Set axis bb
@@ -48,5 +59,3 @@ def plot_grid(config, data, colname, cmap = "viridis", label = "Accessibility In
     # Save the figure as png file with resolution of 300 dpi
     outfp = "results/" + colname + ".png"
     plt.savefig(outfp, dpi=300)
-
-    print("Successfully exported {} accessibility map.".format(colname))
