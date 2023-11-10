@@ -23,8 +23,8 @@ except:
 
 # Load admin regions ----
 
-admin_regions = gpd.read_file(config_env["admin_regions"]["regions"], engine = "pyogrio")
-admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["name_column"]]
+admin_regions = gpd.read_file(config_env["admin_regions"]["file"], engine = "pyogrio")
+admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["column"]]
 admin_regions = admin_regions.to_crs(config["crs"])
 
 # Create destination objects ----
@@ -55,7 +55,7 @@ d_geom = gpd.GeoDataFrame({
 # Prepare origins -----
 
 print("Create origin objects ..")
-grid = gpd.read_file(config_env["origins"], engine = "pyogrio")
+grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='within')
 
