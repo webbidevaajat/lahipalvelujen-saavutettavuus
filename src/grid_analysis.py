@@ -4,9 +4,11 @@ import json
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-from plotting import plot_grid
-from datatypes.origin import Origin
-from datatypes.destination import Destination
+import networkx as nx
+from src.utils.plotting import plot_grid
+from src.utils.distance import pairwise, haversine
+from src.datatypes.origin import Origin
+from src.datatypes.destination import Destination
 
 # Set up config env -----
 
@@ -27,6 +29,35 @@ admin_regions = gpd.read_file(config_env["admin_regions"]["regions"], engine = "
 admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["name_column"]]
 admin_regions = admin_regions.to_crs(config["crs"])
 
+# Network to calculate distances ----
+network = gpd.read_file(config_env["network"], engine = "pyogrio")
+network = network.to_crs(config["crs"])
+
+# Initializes an empty directed graph
+G = nx.DiGraph ()
+
+for geom in network.geometry:
+    # Extract the coordinates of the LineString
+    coords = list(geom.coords)
+    # Add edges to the graph
+    for p1, p2 in pairwise(coords):
+        G.add_edge(tuple(p1), tuple(p2))
+
+# Find strongly connected components
+components = list(nx.strongly_connected_components(G))
+
+# Convert each component to undirected
+undirected_components = [nx.Graph(G.subgraph(c)) for c in components]
+
+# Select the first undirected component
+if undirected_components:
+    sg = undirected_components[0]
+
+# calculate distances
+for n0, n1 in sg.edges ():
+    dist = haversine(n0, n1)
+    sg.edges [n0,n1][" dist "] = dist
+
 # Create destination objects ----
 
 print("Create destination objects ..")
@@ -43,7 +74,10 @@ for service_type in config_env["services"]:
             usage = config_env["usage"][service_type],
             provider = "goverment",
             admin_matters = config_env["admin_matters"][service_type],
-            admin_region = row["admin_name"]
+            admin_region = row["admin_name"],
+            network = sg,
+            nodes = sg.nodes,
+            edges = sg.edges
         )
     )
 
@@ -71,11 +105,6 @@ print("Add destinations to origins ..")
 for o in origins:
     # Only add if within buffer
     o.set_destinations(destinations)
-
-# Network to calculate distances ----
-
-#network = gpd.read_file(config["network"], engine = "pyogrio")
-#network = network.to_crs(config["crs"])
 
 # Perform analysis -----
 
