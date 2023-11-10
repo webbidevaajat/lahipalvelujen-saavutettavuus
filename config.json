@@ -6,14 +6,20 @@
         "railways": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_rautatie_viiva_1milj.shp",
         "paths": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
         "water": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_vesi_alue_1milj.shp",
-        "names": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_karttanimi_piste_1milj.shp"
+        "names": {
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/HSY/asemat_pisteina.gpkg", 
+            "column": "nimi"
+        }
     },
     "test": {
         "admin_regions": {
-            "regions":"N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Tilastokeskus/kunnat_2023.gpkg", 
-            "name_column": "name"
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Tilastokeskus/kunnat_2023.gpkg", 
+            "column": "name"
         },
-        "origins": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test_250m.gpkg",
+        "origins": {
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test_250m.gpkg",
+            "column": "id"
+        },
         "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
         "services": {
             "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/paivahoito.gpkg",
