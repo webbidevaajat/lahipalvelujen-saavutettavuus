@@ -82,14 +82,14 @@ for o in origins:
 print("Perform analysis ..")
 res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
-   "a1_school": [o.accessibility_index1("school") for o in origins],
-   "a1_restaurant": [o.accessibility_index1("restaurant") for o in origins],
-   "a1_sports": [o.accessibility_index1("sports") for o in origins],
-   "a1_health": [o.accessibility_index1("health") for o in origins],
-   "a1_total": [o.accessibility_index1(config_env["services"]) for o in origins],
-   "a2_school": [o.accessibility_index2("school") for o in origins],
-   "a2_sports": [o.accessibility_index2("sports") for o in origins],
-   "a2_total": [o.accessibility_index2(config_env["services"]) for o in origins]
+   "a1_school": [o.accessibility_index1(["school"]) for o in origins],
+   "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
+   "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
+   "a1_health": [o.accessibility_index1(["health"]) for o in origins],
+   "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
+   "a2_school": [o.accessibility_index2(["school"]) for o in origins],
+   "a2_sports": [o.accessibility_index2(["sports"]) for o in origins],
+   "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
 cols = res.columns[res.columns.str.startswith('a1')]
