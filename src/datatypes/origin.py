@@ -1,3 +1,8 @@
+import json
+
+# Open yaml config file
+with open('config.json') as f:
+   config = json.load(f)
 
 class Origin(object):
     id_counter = 0
@@ -18,14 +23,15 @@ class Origin(object):
         self.centroid = geom.centroid
         self.name = None
         self.admin_region = admin_region
+        self.radius = config["radius"]
 
-    def set_destinations(self, destinations, radius = 3000):
+    def set_destinations(self, destinations):
         """
         Keep only destination within buffer
         Check if destination has admin restriction and filter with that
         """
         self.destinations = list()
-        buffer = self.centroid.buffer(radius)
+        buffer = self.centroid.buffer(self.radius)
         for d in destinations:
             if d.centroid.within(buffer):
                 if d.admin_matters:
@@ -42,7 +48,7 @@ class Origin(object):
             # return shortest time, mins
             return (min(distances) / 1000 / (5 / 60))
         else:
-            return (3000 / 1000 / (5 / 60)) # buffer radius
+            return (self.radius / 1000 / (5 / 60)) # buffer radius
 
     def accessibility_index1(self, categories):
         """
@@ -73,5 +79,5 @@ class Origin(object):
         if idx:
             return (sum(idx) / len(idx))
         else:
-            return (3000 / 1000 / (5 / 60)) # buffer radius
+            return (self.radius / 1000 / (5 / 60)) # buffer radius
     
