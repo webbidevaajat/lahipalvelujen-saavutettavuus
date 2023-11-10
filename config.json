@@ -1,6 +1,7 @@
 
 {
     "crs": "EPSG:3879",
+    "radius": 3000,
     "basemap": {
         "roads": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_tie_viiva_1milj.shp",
         "railways": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_rautatie_viiva_1milj.shp",
