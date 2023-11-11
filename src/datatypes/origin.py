@@ -42,8 +42,9 @@ class Origin(object):
             
     def get_closest(self, category):
         distances = list()
-        for destination in self.destinations:
-            distances.append(destination.get_distance(self))
+        for d in self.destinations:
+            if d.category == category:
+                distances.append(d.get_distance(self))                
         if distances: 
             # return shortest time, mins
             return (min(distances) / 1000 / (5 / 60))
@@ -58,9 +59,12 @@ class Origin(object):
         """
         idx = list()
         # calculate over all destinations within origin radius
-        for d in self.destinations:
-            if d.category in categories:
-                idx.append(d.get_dist_decay(self) * d.usage)
+        if isinstance(categories, list):
+            for d in self.destinations:
+                if d.category in categories:
+                    idx.append(d.get_dist_decay(self) * d.usage)
+        else:
+            raise TypeError("Categories argument is not a list.")
         # return sum for origin
         return sum(idx)
     
@@ -72,10 +76,12 @@ class Origin(object):
         """
         idx = list()
         # calculate over all destinations within origin radius
-        for category in categories:
-            idx.append(self.get_closest(category))
-        
-        # return mean of min travel times
+        if isinstance(categories, list):
+            for category in categories:
+                idx.append(self.get_closest(category))
+        else:
+            raise TypeError("Categories argument is not a list.")
+        # Return mean of min travel times
         if idx:
             return (sum(idx) / len(idx))
         else:

@@ -25,8 +25,8 @@ except:
 
 # Load admin regions ----
 
-admin_regions = gpd.read_file(config_env["admin_regions"]["regions"], engine = "pyogrio")
-admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["name_column"]]
+admin_regions = gpd.read_file(config_env["admin_regions"]["file"], engine = "pyogrio")
+admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["column"]]
 admin_regions = admin_regions.to_crs(config["crs"])
 
 # Network to calculate distances ----
@@ -89,7 +89,7 @@ d_geom = gpd.GeoDataFrame({
 # Prepare origins -----
 
 print("Create origin objects ..")
-grid = gpd.read_file(config_env["origins"], engine = "pyogrio")
+grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='within')
 
@@ -111,14 +111,14 @@ for o in origins:
 print("Perform analysis ..")
 res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
-   "a1_school": [o.accessibility_index1("school") for o in origins],
-   "a1_restaurant": [o.accessibility_index1("restaurant") for o in origins],
-   "a1_sports": [o.accessibility_index1("sports") for o in origins],
-   "a1_health": [o.accessibility_index1("health") for o in origins],
-   "a1_total": [o.accessibility_index1(config_env["services"]) for o in origins],
-   "a2_school": [o.accessibility_index2("school") for o in origins],
-   "a2_sports": [o.accessibility_index2("sports") for o in origins],
-   "a2_total": [o.accessibility_index2(config_env["services"]) for o in origins]
+   "a1_school": [o.accessibility_index1(["school"]) for o in origins],
+   "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
+   "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
+   "a1_health": [o.accessibility_index1(["health"]) for o in origins],
+   "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
+   "a2_school": [o.accessibility_index2(["school"]) for o in origins],
+   "a2_sports": [o.accessibility_index2(["sports"]) for o in origins],
+   "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
 cols = res.columns[res.columns.str.startswith('a1')]

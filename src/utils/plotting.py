@@ -13,8 +13,6 @@ def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", ti
     """
     Plot function for accessibility graphs.
     """
-    
-    print("Exported {} accessibility map ..".format(colname))
 
     # Create one subplot. Control figure size in here.
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -39,11 +37,18 @@ def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", ti
     highway = highway.to_crs(config["crs"])
     railways = gpd.read_file(config_map["railways"], engine = "pyogrio")
     railways = railways.to_crs(config["crs"])
+    names = gpd.read_file(config_map["names"]["file"], engine = "pyogrio")
+    names = names.to_crs(config["crs"])
+    names["geometry"] = names.geometry.centroid
+    names = names.loc[names.centroid.within(data.unary_union)]
 
     paths.plot(ax=ax, color="white", linewidth=0.1)
     highway.plot(ax=ax, color="white", linewidth=0.5)
-    railways.plot(ax=ax, color="white", linestyle="-", linewidth=0.6)
-    railways.plot(ax=ax, color="black", linestyle="--", linewidth=0.6)
+    railways.plot(ax=ax, color="white", linestyle="-", linewidth=0.8)
+    railways.plot(ax=ax, color="black", linestyle="--", linewidth=0.5)
+    for x, y, label in zip(names.geometry.x, names.geometry.y, names[config_map["names"]["column"]]):
+        ax.annotate(label, xy=(x, y), xytext=(3, 3), textcoords="offset points", fontsize=8, color='white')
+
 
     # Remove the empty white-space around the axes
     ax.set_axis_off()
@@ -59,3 +64,5 @@ def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", ti
     # Save the figure as png file with resolution of 300 dpi
     outfp = "results/" + colname + ".png"
     plt.savefig(outfp, dpi=300)
+
+    print("Exported {} accessibility map ..".format(colname))
