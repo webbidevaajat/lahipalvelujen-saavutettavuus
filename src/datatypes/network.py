@@ -11,7 +11,7 @@ from osgeo import ogr
 from osgeo import osr
 from utils.distance import haversine
 from shapely.geometry import LineString, Point, MultiPoint
-from shapely.ops import nearest_points, snap
+from shapely.ops import nearest_points
 
 # Open yaml config file
 with open('config.json') as f:
@@ -31,39 +31,63 @@ class Network(object):
         """
         n = network.geometry
         n = unary_union(n)
-        # geometries
-        self.geoms = list(n.geoms)
+        #p = n.boundary
+        lines = list(n.geoms)
+        points = list()
+        for line in lines:
+            points.append(line.coords[0])
+            points.append(line.coords[-1])
+        points = set(points)
+        points = [Point(c) for c in points]
+        #points = MultiPoint(points = points)
+        #points = p.geoms
         # graph
         self.graph = nx.Graph()
+
+        points = gpd.GeoDataFrame({"geometry": points}, geometry="geometry", crs=config["crs"]) 
+        points["id"] = points.index + 1
         
-        i = 0
-        coords = pd.Series(np.arange(len(self.geoms)))
-        for line in self.geoms:
-            for start_c, end_c in zip(list(line.coords),list(line.coords)[1:]):
-                # start
-                if start_c in set(coords.values):
-                    start_id = coords[coords == start_c].index.values[0]
-                else:
-                    coords[i] = start_c
-                    start_id = i
-                    i += 1
-                # end
-                if end_c in set(coords.values):
-                    end_id = coords[coords == end_c].index.values[0]
-                else:
-                    coords[i] = end_c
-                    end_id = i
-                    i += 1
-            # add ids to graph
-            self.graph.add_edge(start_id, end_id, dist = line.length) 
-            if i % 100 == 0:
-                print(i, len(self.geoms))
-   
-        self.points = gpd.GeoDataFrame({
-            "id": coords.index,
-            "geometry": [Point(c) for c in coords]
-            }, 
-            geometry="geometry", crs=config["crs"])    
+        lines = gpd.GeoDataFrame({"geometry": lines}, geometry="geometry", crs=config["crs"]) 
+        lines["id"] = lines.index + 1
+
+        start_points = list()
+        last_points = list()
+        for index, row in lines.iterrows():
+            start_points.append(Point(row['geometry'].coords[0]))
+            last_points.append(Point(row['geometry'].coords[-1]))
+
+        lines_start = gpd.GeoDataFrame({"geometry": start_points}, geometry="geometry", crs=config["crs"]) 
+        lines_start["id"] = lines_start.index + 1
+
+        lines_end = gpd.GeoDataFrame({"geometry": last_points}, geometry="geometry", crs=config["crs"]) 
+        lines_end["id"] = lines_end.index + 1
+        
+        points.geometry = points.centroid.buffer(0.1)
+        
+        lines_start= lines_start.sjoin(points, predicate='within', lsuffix='line', rsuffix='start')
+        lines_start = lines_start[["id_line", "id_start"]]
+
+        lines_end = lines_end.sjoin(points, predicate='within', lsuffix='line', rsuffix='end')
+        lines_end = lines_end[["id_line", "id_end"]]
+
+        points.geometry = points.centroid
+
+        lines = lines.merge(lines_start, left_on="id", right_on="id_line", how='left')
+        lines = lines.merge(lines_end, left_on="id", right_on="id_line", how='left')
+
+        for index, row in lines.iterrows():
+            self.graph.add_edge(row["id_start"], row["id_end"], dist = row['geometry'].length)
+
+        points["id"] = points["id"].astype("int")
+        lines["id"] = lines["id"].astype("int")
+        lines["id_end"] = lines["id_end"].astype("int")
+        lines["id_start"] = lines["id_start"].astype("int")
+
+        points.to_file("results/points.gpkg")
+        lines.to_file("results/lines.gpkg")
+        
+        self.points = points
+        self.lines = lines
 
     def get_distance(self, origin, destination):
         """
