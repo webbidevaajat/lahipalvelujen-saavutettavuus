@@ -4,11 +4,10 @@ import json
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-import networkx as nx
-from src.utils.plotting import plot_grid
-from src.utils.distance import pairwise, haversine
-from src.datatypes.origin import Origin
-from src.datatypes.destination import Destination
+from utils.plotting import plot_grid
+from datatypes.origin import Origin
+from datatypes.destination import Destination
+from datatypes.network import Network
 
 # Set up config env -----
 
@@ -30,33 +29,11 @@ admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["column"
 admin_regions = admin_regions.to_crs(config["crs"])
 
 # Network to calculate distances ----
-network = gpd.read_file(config_env["network"], engine = "pyogrio")
-network = network.to_crs(config["crs"])
 
-# Initializes an empty directed graph
-G = nx.DiGraph ()
-
-for geom in network.geometry:
-    # Extract the coordinates of the LineString
-    coords = list(geom.coords)
-    # Add edges to the graph
-    for p1, p2 in pairwise(coords):
-        G.add_edge(tuple(p1), tuple(p2))
-
-# Find strongly connected components
-components = list(nx.strongly_connected_components(G))
-
-# Convert each component to undirected
-undirected_components = [nx.Graph(G.subgraph(c)) for c in components]
-
-# Select the first undirected component
-if undirected_components:
-    sg = undirected_components[0]
-
-# calculate distances
-for n0, n1 in sg.edges ():
-    dist = haversine(n0, n1)
-    sg.edges [n0,n1][" dist "] = dist
+print("Create network object ..")
+network_gdf = gpd.read_file(config_env["network"], engine = "pyogrio")
+network_gdf = network_gdf.to_crs(config["crs"])
+network = Network(network_gdf)
 
 # Create destination objects ----
 
@@ -74,17 +51,9 @@ for service_type in config_env["services"]:
             usage = config_env["usage"][service_type],
             provider = "goverment",
             admin_matters = config_env["admin_matters"][service_type],
-            admin_region = row["admin_name"],
-            network = sg,
-            nodes = sg.nodes,
-            edges = sg.edges
+            admin_region = row["admin_name"]
         )
     )
-
-d_geom = gpd.GeoDataFrame({
-            "geometry": [d.centroid for d in destinations], 
-            "id": [d.id for d in destinations]}, 
-            geometry="geometry", crs=config["crs"])
 
 # Prepare origins -----
 
@@ -101,24 +70,34 @@ for index, row in grid.iterrows():
             admin_region = row["admin_name"]
     ))
 
-print("Add destinations to origins ..")
+print("Search reachable destinations for origins ..")
 for o in origins:
-    # Only add if within buffer
     o.set_destinations(destinations)
+
+print("Add access nodes ..")
+for d in destinations:
+   d.set_access_node(network)
+
+for o in origins:
+    o.set_access_node(network)
+
+print("Add access nodes ..")
+for o in origins:
+    o.set_distances(network)
 
 # Perform analysis -----
 
 print("Perform analysis ..")
 res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
-   "a1_school": [o.accessibility_index1(["school"]) for o in origins],
-   "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
-   "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
-   "a1_health": [o.accessibility_index1(["health"]) for o in origins],
-   "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
-   "a2_school": [o.accessibility_index2(["school"]) for o in origins],
-   "a2_sports": [o.accessibility_index2(["sports"]) for o in origins],
-   "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
+   "a1_school": [o.accessibility_index1(["school"], network) for o in origins],
+   "a1_restaurant": [o.accessibility_index1(["restaurant"], network) for o in origins],
+   "a1_sports": [o.accessibility_index1(["sports"], network) for o in origins],
+   "a1_health": [o.accessibility_index1(["health"], network) for o in origins],
+   "a1_total": [o.accessibility_index1(list(config_env["services"]), network) for o in origins],
+   "a2_school": [o.accessibility_index2(["school"], network) for o in origins],
+   "a2_sports": [o.accessibility_index2(["sports"], network) for o in origins],
+   "a2_total": [o.accessibility_index2(list(config_env["services"]), network) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
 cols = res.columns[res.columns.str.startswith('a1')]

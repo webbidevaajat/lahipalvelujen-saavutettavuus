@@ -2,16 +2,9 @@
 from itertools import tee
 import math
 
-def pairwise( iterable ):
-    """Returns an iterable access binary tuple
-    s -> (s0,s1), (s1,s2), (s2, s3), ..."""
-    a, b = tee( iterable )
-    next(b, None)
-    return zip(a, b)
-
 def haversine(n0, n1):
     """
-    calculates the haversine distance between two points on the
+    Calculates the haversine distance between two points on the
     Earth's surface, given their latitude and longitude coordinates.
     
     """
