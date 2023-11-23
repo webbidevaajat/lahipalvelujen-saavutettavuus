@@ -83,8 +83,8 @@ class Network(object):
         lines["id_end"] = lines["id_end"].astype("int")
         lines["id_start"] = lines["id_start"].astype("int")
 
-        points.to_file("results/points.gpkg")
-        lines.to_file("results/lines.gpkg")
+        #points.to_file("results/points.gpkg")
+        #lines.to_file("results/lines.gpkg")
         
         self.points = points
         self.lines = lines
@@ -103,13 +103,15 @@ class Network(object):
         path = nx.shortest_path(self.graph, source=origin.access_node, target=destination.access_node, weight="dist")
         
         # Create a list of edges in the shortest path
-        if len(path) > 1: 
-            line = LineString(path)
-            line_gdf = gpd.GeoDataFrame({"geometry": line}, geometry="geometry", crs=config["crs"], index=[0])
+        ps = list()
+        for p in path:
+            ps.append(self.points.loc[self.points["id"] == p]) 
+        line = LineString([(p.x, p.y) for p in ps])
+        line_gdf = gpd.GeoDataFrame({"geometry": line}, geometry="geometry", crs=config["crs"], index=[0])
+
         orig_gdf = gpd.GeoDataFrame({"geometry": origin.centroid}, geometry="geometry", crs=config["crs"], index=[0])
         dest_gdf = gpd.GeoDataFrame({"geometry": destination.centroid}, geometry="geometry", crs=config["crs"], index=[0])
-        self.plot_network(line, orig_gdf, dest_gdf)
-        print(line.length)
+        self.plot_network(line_gdf, orig_gdf, dest_gdf)
         return(line.length)
     
     def get_dist_decay(self, origin, destination):
@@ -123,6 +125,5 @@ class Network(object):
         
         orig.plot(ax=ax, marker='o', color='red', markersize=50)
         dest.plot(ax=ax, marker='o', color='red', markersize=50)
-        nx.draw(self.graph, {n:[n[0], n[1]] for n in list(self.graph.nodes)}, ax=ax, node_size=1)
         line.plot(ax=ax, color="red")
         plt.show()
