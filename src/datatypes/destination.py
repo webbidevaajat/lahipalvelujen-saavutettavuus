@@ -39,7 +39,14 @@ class Destination(object):
 
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
-        nearest_geoms  = nearest_points(self.centroid, network.points.geometry)
-        nearest_data = network.points.loc[network.points.geometry == nearest_geoms[1]]
-        nearest_value = nearest_data["id"].get_values()[0]
-        self.access_node = nearest_value
+        try:
+            mask = network.points.within(self.centroid.buffer(100))
+            nearby_points = network.points.loc[mask]
+            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
+            nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
+            nearest_value = nearest_data["id"].values[0]
+            self.access_node = nearest_value
+        except:
+            self.access_node = None
+        
+        
