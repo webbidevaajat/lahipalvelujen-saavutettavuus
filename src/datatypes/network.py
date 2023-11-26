@@ -104,16 +104,19 @@ class Network(object):
             return 9999999
         if d.access_node is None:
             return 9999999
-        
-        path = nx.shortest_path(self.graph, source=o.access_node, target=d.access_node, weight="dist")
-        
-        # Create a list of edges in the shortest path
-        path_p = list()
-        for p in path:
-            path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
-        line = LineString(path_p)
-        #self.plot_network(line, orig, dest)
-        return(line.length)
+        if o.access_node == d.access_node:
+            return 9999999
+        try:
+            path = nx.shortest_path(self.graph, source=o.access_node, target=d.access_node, weight="dist")
+            path_p = list()
+            for p in path:
+                path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
+            line = LineString(path_p)
+            #self.plot_network(line, orig, dest)
+            return(line.length)
+        except nx.NetworkXNoPath:
+            print("No path between {} and {}.".format(o.access_node, d.access_node))
+            return 9999999
     
     def get_dist_decay(self, origin, destination):
         b = -1
