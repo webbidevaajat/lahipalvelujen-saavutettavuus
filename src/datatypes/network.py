@@ -89,7 +89,7 @@ class Network(object):
         self.points = points
         self.lines = lines
 
-    def get_distance(self, origin, destination):
+    def get_distance(self, o, d):
         """
         Get distances from origin.
         
@@ -100,18 +100,19 @@ class Network(object):
         """
 
         # Find the shortest path
-        path = nx.shortest_path(self.graph, source=origin.access_node, target=destination.access_node, weight="dist")
+        if o.access_node is None:
+            return 9999999
+        if d.access_node is None:
+            return 9999999
+        
+        path = nx.shortest_path(self.graph, source=o.access_node, target=d.access_node, weight="dist")
         
         # Create a list of edges in the shortest path
-        ps = list()
+        path_p = list()
         for p in path:
-            ps.append(self.points.loc[self.points["id"] == p]) 
-        line = LineString([(p.x, p.y) for p in ps])
-        line_gdf = gpd.GeoDataFrame({"geometry": line}, geometry="geometry", crs=config["crs"], index=[0])
-
-        orig_gdf = gpd.GeoDataFrame({"geometry": origin.centroid}, geometry="geometry", crs=config["crs"], index=[0])
-        dest_gdf = gpd.GeoDataFrame({"geometry": destination.centroid}, geometry="geometry", crs=config["crs"], index=[0])
-        self.plot_network(line_gdf, orig_gdf, dest_gdf)
+            path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
+        line = LineString(path_p)
+        #self.plot_network(line, orig, dest)
         return(line.length)
     
     def get_dist_decay(self, origin, destination):
@@ -119,6 +120,10 @@ class Network(object):
         return np.exp(b * self.get_distance(origin, destination) / 1000)
     
     def plot_network(self, line, orig, dest):
+        line = gpd.GeoDataFrame({"geometry": line}, geometry="geometry", crs=config["crs"], index=[0])
+        orig = gpd.GeoDataFrame({"geometry": o.centroid}, geometry="geometry", crs=config["crs"], index=[0])
+        dest = gpd.GeoDataFrame({"geometry": d.centroid}, geometry="geometry", crs=config["crs"], index=[0])
+        
         fig, ax = plt.subplots(figsize=(18, 6))
         ax.set_title("Primal graph")
         ax.axis("off")
