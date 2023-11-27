@@ -1,4 +1,5 @@
 import json
+import numpy
 from shapely.geometry import Point
 from shapely.ops import nearest_points
 
@@ -59,7 +60,7 @@ class Origin(object):
         for d in self.destinations:
             self.distances.append(network.get_distance(self, d))
 
-    def get_shortest_dist(self, category, network):
+    def get_shortest_dist(self, category):
         distances = list()
         for i, d in enumerate(self.destinations):
             if d.category == category:
@@ -71,7 +72,7 @@ class Origin(object):
         else:
             return (self.radius / 1000 / (5 / 60)) # buffer radius
 
-    def accessibility_index1(self, categories, network):
+    def accessibility_index1(self, categories):
         """
         Accessibility Index calculation option 1.
         AIndex is based on usage rate of service type and distance decay to location.
@@ -82,14 +83,14 @@ class Origin(object):
         if isinstance(categories, list):
             for i, d in enumerate(self.destinations):
                 if d.category in categories:
-                    dist = self.distances[i]
-                    idx.append(dist * d.usage)
+                    decay = numpy.exp(-1 * self.distances[i] / 1000)
+                    idx.append(decay * d.usage)
         else:
             raise TypeError("Categories argument is not a list.")
         # return sum for origin
         return sum(idx)
     
-    def accessibility_index2(self, categories, network):
+    def accessibility_index2(self, categories):
         """
         Accessibility Index calculation option 2.
         AIndex is calculated as mean time for closest service in each category.
@@ -99,7 +100,7 @@ class Origin(object):
         # calculate over all destinations within origin radius
         if isinstance(categories, list):
             for category in categories:
-                idx.append(self.get_shortest_dist(category, network))
+                idx.append(self.get_shortest_dist(category))
         else:
             raise TypeError("Categories argument is not a list.")
         # Return mean of min travel times
