@@ -4,8 +4,6 @@ import json
 import geopandas as gpd
 import os
 import numpy
-import threading
-import multiprocessing
 
 from utils.plotting import plot_grid
 from datatypes.origin import Origin
@@ -79,8 +77,6 @@ for o in origins:
     o.set_destinations(destinations)
 
 print("Add access nodes ..")
-
-
 for d in destinations:
    d.set_access_node(network)
 
@@ -88,38 +84,26 @@ for o in origins:
     o.set_access_node(network)
 
 print("Get distances nodes ..")
-
-# Take a range of origins, which this thread will calculate
-nr_threads = multiprocessing.cpu_count() - 1
-origs = numpy.array_split(origins, nr_threads)
-
-# Define loop for each range
-def _calc_origins(orig):
-    i = 1
-    for o in orig:
-        o.set_distances(network)
-        if i % 1000 == 0:
-            print(i, "/", len(orig))
-
-# Run thread for each range
-for orig in origs:
-    print("Calculate origins {} ".format(orig[0].id, orig[-1].id))
-    thread = threading.Thread(target=_calc_origins, args=([orig]))
-    thread.start()
+i = 0
+for o in origins:
+    o.set_distances(network)
+    i += 1
+    if i % 10 == 0:
+       print(i, "/", len(origins))
 
 # Perform analysis -----
 
 print("Perform analysis ..")
 res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
-   "a1_school": [o.accessibility_index1(["school"], network) for o in origins],
-   "a1_restaurant": [o.accessibility_index1(["restaurant"], network) for o in origins],
-   "a1_sports": [o.accessibility_index1(["sports"], network) for o in origins],
-   "a1_health": [o.accessibility_index1(["health"], network) for o in origins],
-   "a1_total": [o.accessibility_index1(list(config_env["services"]), network) for o in origins],
-   "a2_school": [o.accessibility_index2(["school"], network) for o in origins],
-   "a2_sports": [o.accessibility_index2(["sports"], network) for o in origins],
-   "a2_total": [o.accessibility_index2(list(config_env["services"]), network) for o in origins]
+   "a1_school": [o.accessibility_index1(["school"]) for o in origins],
+   "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
+   "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
+   "a1_health": [o.accessibility_index1(["health"]) for o in origins],
+   "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
+   "a2_school": [o.accessibility_index2(["school"]) for o in origins],
+   "a2_sports": [o.accessibility_index2(["sports"]) for o in origins],
+   "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
 cols = res.columns[res.columns.str.startswith('a1')]
