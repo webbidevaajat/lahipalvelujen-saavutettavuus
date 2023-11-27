@@ -1,6 +1,5 @@
 
 import json
-from shapely.geometry import Point
 from shapely.ops import nearest_points
 
 # Open yaml config file

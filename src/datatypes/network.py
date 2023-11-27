@@ -1,17 +1,8 @@
 import json
 import networkx as nx
 from shapely.ops import unary_union
-from itertools import compress
-import numpy as np
-import momepy
 import geopandas as gpd
-import pandas as pd
-import matplotlib.pyplot as plt
-from osgeo import ogr
-from osgeo import osr
-from utils.distance import haversine
-from shapely.geometry import LineString, Point, MultiPoint
-from shapely.ops import nearest_points
+from shapely.geometry import LineString, Point
 
 # Open yaml config file
 with open('config.json') as f:
