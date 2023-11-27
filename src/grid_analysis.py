@@ -32,9 +32,11 @@ admin_regions = admin_regions.to_crs(config["crs"])
 # Network to calculate distances ----
 
 print("Create network object ..")
-network_gdf = gpd.read_file(config_env["network"], engine = "pyogrio")
-network_gdf = network_gdf.to_crs(config["crs"])
-network = Network(network_gdf)
+network_lines = gpd.read_file("results/lines.gpkg", engine = "pyogrio")
+network_lines = network_lines.to_crs(config["crs"])
+network_points = gpd.read_file("results/points.gpkg", engine = "pyogrio")
+network_points = network_points.to_crs(config["crs"])
+network = Network(network_lines, network_points)
 
 # Create destination objects ----
 
