@@ -91,12 +91,14 @@ class Network(object):
 
     def get_distance(self, o, d):
         """
-        Get distances from origin.
+        Get distance from origin to destination.
         
         Parameters
         ----------
         origin : datatypes.origin.Origin
-            Origin to search distance into.
+            Origin of path that has property access node.
+        destination : datatypes.destination.Destination
+            Destination of path that has property access node.
         """
 
         # Find the shortest path
@@ -106,32 +108,38 @@ class Network(object):
             return 9999999
         if o.access_node == d.access_node:
             return 9999999
-        try:
-            path = nx.shortest_path(self.graph, source=o.access_node, target=d.access_node, weight="dist")
-            path_p = list()
-            for p in path:
-                path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
-            line = LineString(path_p)
-            #self.plot_network(line, orig, dest)
-            return(line.length)
-        except nx.NetworkXNoPath:
-            print("No path between {} and {}.".format(o.access_node, d.access_node))
+        if not nx.has_path(self.graph, source=o.access_node, target=d.access_node):
             return 9999999
+        else:
+            return nx.shortest_path_length(self.graph, source=o.access_node, 
+                                           target=d.access_node, weight="dist")
     
-    def get_dist_decay(self, origin, destination):
-        b = -1
-        return np.exp(b * self.get_distance(origin, destination) / 1000)
-    
-    def plot_network(self, line, orig, dest):
-        line = gpd.GeoDataFrame({"geometry": line}, geometry="geometry", crs=config["crs"], index=[0])
-        orig = gpd.GeoDataFrame({"geometry": o.centroid}, geometry="geometry", crs=config["crs"], index=[0])
-        dest = gpd.GeoDataFrame({"geometry": d.centroid}, geometry="geometry", crs=config["crs"], index=[0])
+    def get_path(self, o, d):
+        """
+        Get line path and path distance from origin to destination.
         
-        fig, ax = plt.subplots(figsize=(18, 6))
-        ax.set_title("Primal graph")
-        ax.axis("off")
-        
-        orig.plot(ax=ax, marker='o', color='red', markersize=50)
-        dest.plot(ax=ax, marker='o', color='red', markersize=50)
-        line.plot(ax=ax, color="red")
-        plt.show()
+        Parameters
+        ----------
+        origin : datatypes.origin.Origin
+            Origin of path that has property access node.
+        destination : datatypes.destination.Destination
+            Destination of path that has property access node.
+        """
+
+        # Find the shortest path
+        if o.access_node is None:
+            return 9999999
+        if d.access_node is None:
+            return 9999999
+        if o.access_node == d.access_node:
+            return 9999999
+        if not nx.has_path(self.graph, source=o.access_node, target=d.access_node):
+            return 9999999
+
+        path = nx.shortest_path_length(self.graph, source=o.access_node, 
+                                       target=d.access_node, weight="dist")
+        path_p = list()
+        for p in path:
+            path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
+        line = LineString(path_p)
+        return line, line.length
