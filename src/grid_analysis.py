@@ -2,8 +2,11 @@
 import sys
 import json
 import geopandas as gpd
-import numpy as np
-import matplotlib.pyplot as plt
+import os
+import numpy
+import threading
+import multiprocessing
+
 from utils.plotting import plot_grid
 from datatypes.origin import Origin
 from datatypes.destination import Destination
@@ -62,6 +65,7 @@ grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='within')
 
+
 origins = []
 for index, row in grid.iterrows():
     origins.append(
@@ -75,15 +79,33 @@ for o in origins:
     o.set_destinations(destinations)
 
 print("Add access nodes ..")
+
+
 for d in destinations:
    d.set_access_node(network)
 
 for o in origins:
     o.set_access_node(network)
 
-print("Add access nodes ..")
-for o in origins:
-    o.set_distances(network)
+print("Get distances nodes ..")
+
+# Take a range of origins, which this thread will calculate
+nr_threads = multiprocessing.cpu_count() - 1
+origs = numpy.array_split(origins, nr_threads)
+
+# Define loop for each range
+def _calc_origins(orig):
+    i = 1
+    for o in orig:
+        o.set_distances(network)
+        if i % 1000 == 0:
+            print(i, "/", len(orig))
+
+# Run thread for each range
+for orig in origs:
+    print("Calculate origins {} ".format(orig[0].id, orig[-1].id))
+    thread = threading.Thread(target=_calc_origins, args=([orig]))
+    thread.start()
 
 # Perform analysis -----
 
