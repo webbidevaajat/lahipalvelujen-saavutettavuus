@@ -1,6 +1,7 @@
 import json
 import numpy
 from shapely.ops import nearest_points
+import networkx as nx
 
 # Open yaml config file
 with open('config.json') as f:
@@ -27,21 +28,6 @@ class Origin(object):
         self.admin_region = admin_region
         self.dest_radius = config["destination_radius"]
 
-    def set_destinations(self, destinations):
-        """
-        Keep only destination within buffer
-        Check if destination has admin restriction and filter with that
-        """
-        self.destinations = list()
-        buffer = self.centroid.buffer(self.dest_radius)
-        for d in destinations:
-            if d.centroid.within(buffer):
-                if d.admin_matters:
-                    if d.admin_region == self.admin_region:
-                        self.destinations.append(d)
-                else: 
-                    self.destinations.append(d)
-
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
         try:
@@ -55,15 +41,27 @@ class Origin(object):
             self.access_node = None
 
     def set_distances(self, network):
-        self.distances = list()
-        for d in self.destinations:
-            self.distances.append(network.get_distance(self, d))
+        self.distances = network.get_origin_dist(self, self.dest_radius)
+
+    def set_destinations(self, destinations):
+        """
+        Keep only destination within buffer
+        Check if destination has admin restriction and filter with that
+        """
+        self.destinations = list()
+        for d in destinations:
+            if d.access_node in self.distances.keys():
+                if d.admin_matters:
+                    if d.admin_region == self.admin_region:
+                        self.destinations.append(d)
+                else: 
+                    self.destinations.append(d)
 
     def get_shortest_dist(self, category):
         distances = list()
-        for i, d in enumerate(self.destinations):
+        for d in self.destinations:
             if d.category == category:
-                dist = self.distances[i]
+                dist = self.distances[d.access_node]
                 distances.append(dist)                
         if distances: 
             # return shortest time, mins
@@ -80,9 +78,9 @@ class Origin(object):
         idx = list()
         # calculate over all destinations within origin radius
         if isinstance(categories, list):
-            for i, d in enumerate(self.destinations):
+            for d in self.destinations:
                 if d.category in categories:
-                    decay = numpy.exp(-1 * self.distances[i] / 1000)
+                    decay = numpy.exp(-1 * self.distances[d.access_node] / 1000)
                     idx.append(decay * d.usage)
         else:
             raise TypeError("Categories argument is not a list.")

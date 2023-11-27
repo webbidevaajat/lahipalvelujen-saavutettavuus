@@ -64,7 +64,7 @@ print("Create origin objects ..")
 grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='within')
-
+#grid = grid.iloc[1:100,]
 
 origins = []
 for index, row in grid.iterrows():
@@ -74,24 +74,24 @@ for index, row in grid.iterrows():
             admin_region = row["admin_name"]
     ))
 
-print("Search reachable destinations for origins ..")
-for o in origins:
-    o.set_destinations(destinations)
-
 print("Add access nodes ..")
 for d in destinations:
    d.set_access_node(network)
 
 for o in origins:
-    o.set_access_node(network)
+   o.set_access_node(network)
 
 print("Get distances nodes ..")
 i = 0
 for o in origins:
     o.set_distances(network)
     i += 1
-    if i % 10 == 0:
+    if i % 100 == 0:
        print(i, "/", len(origins))
+
+print("Search reachable destinations for origins ..")
+for o in origins:
+    o.set_destinations(destinations)
 
 # Perform analysis -----
 

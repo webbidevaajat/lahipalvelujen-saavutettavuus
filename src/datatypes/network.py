@@ -26,57 +26,11 @@ class Network(object):
         for index, row in lines.iterrows():
             self.graph.add_edge(row["id_start"], row["id_end"], dist = row['geometry'].length)
 
-    def get_distance(self, o, d):
-        """
-        Get distance from origin to destination.
-        
-        Parameters
-        ----------
-        origin : datatypes.origin.Origin
-            Origin of path that has property access node.
-        destination : datatypes.destination.Destination
-            Destination of path that has property access node.
-        """
-
-        # Find the shortest path
-        if o.access_node is None:
-            return 9999999
-        if d.access_node is None:
-            return 9999999
-        if o.access_node == d.access_node:
-            return 0
-        if not nx.has_path(self.graph, source=o.access_node, target=d.access_node):
-            return 9999999
-        else:
-            return nx.shortest_path_length(self.graph, source=o.access_node, 
-                                           target=d.access_node, weight="dist")
-    
-    def get_path(self, o, d):
-        """
-        Get line path and path distance from origin to destination.
-        
-        Parameters
-        ----------
-        origin : datatypes.origin.Origin
-            Origin of path that has property access node.
-        destination : datatypes.destination.Destination
-            Destination of path that has property access node.
-        """
-
-        # Find the shortest path
-        if o.access_node is None:
-            return 9999999
-        if d.access_node is None:
-            return 9999999
-        if o.access_node == d.access_node:
-            return 0
-        if not nx.has_path(self.graph, source=o.access_node, target=d.access_node):
-            return 9999999
-
-        path = nx.shortest_path_length(self.graph, source=o.access_node, 
-                                       target=d.access_node, weight="dist")
-        path_p = list()
-        for p in path:
-            path_p.append(self.points.loc[self.points["id"] == p, "geometry"].values[0]) 
-        line = LineString(path_p)
-        return line, line.length
+    def get_origin_dist(self, o, max_dist):
+        try:
+            d = nx.single_source_dijkstra_path_length(self.graph, o.access_node, 
+                                                      cutoff=max_dist, weight='dist')
+            return d
+        except nx.exception.NodeNotFound:
+            print("Access node not found {}".format(o.id))
+            return {}
