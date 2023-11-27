@@ -26,7 +26,7 @@ class Origin(object):
         self.centroid = geom.centroid
         self.name = None
         self.admin_region = admin_region
-        self.radius = config["radius"]
+        self.dest_radius = config["destination_radius"]
 
     def set_destinations(self, destinations):
         """
@@ -34,7 +34,7 @@ class Origin(object):
         Check if destination has admin restriction and filter with that
         """
         self.destinations = list()
-        buffer = self.centroid.buffer(self.radius)
+        buffer = self.centroid.buffer(self.dest_radius)
         for d in destinations:
             if d.centroid.within(buffer):
                 if d.admin_matters:
@@ -46,7 +46,7 @@ class Origin(object):
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
         try:
-            mask = network.points.within(self.centroid.buffer(100))
+            mask = network.points.within(self.centroid.buffer(config["access_radius"]))
             nearby_points = network.points.loc[mask]
             nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
             nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
@@ -70,7 +70,7 @@ class Origin(object):
             # return shortest time, mins
             return (min(distances) / 1000 / (5 / 60))
         else:
-            return (self.radius / 1000 / (5 / 60)) # buffer radius
+            return (self.dest_radius / 1000 / (5 / 60)) 
 
     def accessibility_index1(self, categories):
         """
@@ -107,5 +107,5 @@ class Origin(object):
         if idx:
             return (sum(idx) / len(idx))
         else:
-            return (self.radius / 1000 / (5 / 60)) # buffer radius
+            return (self.dest_radius / 1000 / (5 / 60)) 
     
