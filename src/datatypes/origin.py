@@ -1,3 +1,11 @@
+import json
+import numpy
+from shapely.geometry import Point
+from shapely.ops import nearest_points
+
+# Open yaml config file
+with open('config.json') as f:
+   config = json.load(f)
 
 class Origin(object):
     id_counter = 0
@@ -18,14 +26,15 @@ class Origin(object):
         self.centroid = geom.centroid
         self.name = None
         self.admin_region = admin_region
+        self.dest_radius = config["destination_radius"]
 
-    def set_destinations(self, destinations, radius = 3000):
+    def set_destinations(self, destinations):
         """
         Keep only destination within buffer
         Check if destination has admin restriction and filter with that
         """
         self.destinations = list()
-        buffer = self.centroid.buffer(radius)
+        buffer = self.centroid.buffer(self.dest_radius)
         for d in destinations:
             if d.centroid.within(buffer):
                 if d.admin_matters:
@@ -33,17 +42,35 @@ class Origin(object):
                         self.destinations.append(d)
                 else: 
                     self.destinations.append(d)
-            
-    def get_closest(self, category):
-        distances = list()
+
+    def set_access_node(self, network):
+        # Find the nearest nodes in a graph
+        try:
+            mask = network.points.within(self.centroid.buffer(config["access_radius"]))
+            nearby_points = network.points.loc[mask]
+            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
+            nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
+            nearest_value = nearest_data["id"].values[0]
+            self.access_node = nearest_value
+        except:
+            self.access_node = None
+
+    def set_distances(self, network):
+        self.distances = list()
         for d in self.destinations:
+            self.distances.append(network.get_distance(self, d))
+
+    def get_shortest_dist(self, category):
+        distances = list()
+        for i, d in enumerate(self.destinations):
             if d.category == category:
-                distances.append(d.get_distance(self))                
+                dist = self.distances[i]
+                distances.append(dist)                
         if distances: 
             # return shortest time, mins
             return (min(distances) / 1000 / (5 / 60))
         else:
-            return (3000 / 1000 / (5 / 60)) # buffer radius
+            return (self.dest_radius / 1000 / (5 / 60)) 
 
     def accessibility_index1(self, categories):
         """
@@ -54,9 +81,10 @@ class Origin(object):
         idx = list()
         # calculate over all destinations within origin radius
         if isinstance(categories, list):
-            for d in self.destinations:
+            for i, d in enumerate(self.destinations):
                 if d.category in categories:
-                    idx.append(d.get_dist_decay(self) * d.usage)
+                    decay = numpy.exp(-1 * self.distances[i] / 1000)
+                    idx.append(decay * d.usage)
         else:
             raise TypeError("Categories argument is not a list.")
         # return sum for origin
@@ -72,12 +100,12 @@ class Origin(object):
         # calculate over all destinations within origin radius
         if isinstance(categories, list):
             for category in categories:
-                idx.append(self.get_closest(category))
+                idx.append(self.get_shortest_dist(category))
         else:
             raise TypeError("Categories argument is not a list.")
         # Return mean of min travel times
         if idx:
             return (sum(idx) / len(idx))
         else:
-            return (3000 / 1000 / (5 / 60)) # buffer radius
+            return (self.dest_radius / 1000 / (5 / 60)) 
     

@@ -1,6 +1,11 @@
 
-import numpy as np
 import json
+from shapely.geometry import Point
+from shapely.ops import nearest_points
+
+# Open yaml config file
+with open('config.json') as f:
+   config = json.load(f)
 
 class Destination(object):
     id_counter = 0
@@ -14,6 +19,12 @@ class Destination(object):
             Origin id, usually corresponding grid cell.
         geom : geopandas.geoseries.GeoSeries
             Geometry of origin zone or point.
+        network : networkx.Graph
+            Network used for routing
+        nodes : NodeView
+            Nodes connecting links
+        edges : EdgeView
+            Links between nodes
         """
         self.id = Destination.id_counter
         Destination.id_counter += 1
@@ -24,18 +35,18 @@ class Destination(object):
         self.provider = provider
         self.geometry = geometry
         self.centroid = geometry.centroid
-    
-    def get_distance(self, origin):
-        """
-        Get distances from origin.
-        
-        Parameters
-        ----------
-        origin : datatypes.origin.Origin
-            Origin to search distance into.
-        """
-        return self.centroid.distance(origin.centroid)
+        self.crs = config["crs"]
 
-    def get_dist_decay(self, origin):
-        b = -1
-        return np.exp(b * self.get_distance(origin) / 1000)
+    def set_access_node(self, network):
+        # Find the nearest nodes in a graph
+        try:
+            mask = network.points.within(self.centroid.buffer(config["access_radius"]))
+            nearby_points = network.points.loc[mask]
+            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
+            nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
+            nearest_value = nearest_data["id"].values[0]
+            self.access_node = nearest_value
+        except:
+            self.access_node = None
+        
+        

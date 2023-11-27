@@ -2,11 +2,13 @@
 import sys
 import json
 import geopandas as gpd
-import numpy as np
-import matplotlib.pyplot as plt
-from plotting import plot_grid
+import os
+import numpy
+
+from utils.plotting import plot_grid
 from datatypes.origin import Origin
 from datatypes.destination import Destination
+from datatypes.network import Network
 
 # Set up config env -----
 
@@ -26,6 +28,13 @@ except:
 admin_regions = gpd.read_file(config_env["admin_regions"]["file"], engine = "pyogrio")
 admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["column"]]
 admin_regions = admin_regions.to_crs(config["crs"])
+
+# Network to calculate distances ----
+
+print("Create network object ..")
+network_gdf = gpd.read_file(config_env["network"], engine = "pyogrio")
+network_gdf = network_gdf.to_crs(config["crs"])
+network = Network(network_gdf)
 
 # Create destination objects ----
 
@@ -47,17 +56,13 @@ for service_type in config_env["services"]:
         )
     )
 
-d_geom = gpd.GeoDataFrame({
-            "geometry": [d.centroid for d in destinations], 
-            "id": [d.id for d in destinations]}, 
-            geometry="geometry", crs=config["crs"])
-
 # Prepare origins -----
 
 print("Create origin objects ..")
 grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='within')
+
 
 origins = []
 for index, row in grid.iterrows():
@@ -67,15 +72,24 @@ for index, row in grid.iterrows():
             admin_region = row["admin_name"]
     ))
 
-print("Add destinations to origins ..")
+print("Search reachable destinations for origins ..")
 for o in origins:
-    # Only add if within buffer
     o.set_destinations(destinations)
 
-# Network to calculate distances ----
+print("Add access nodes ..")
+for d in destinations:
+   d.set_access_node(network)
 
-#network = gpd.read_file(config["network"], engine = "pyogrio")
-#network = network.to_crs(config["crs"])
+for o in origins:
+    o.set_access_node(network)
+
+print("Get distances nodes ..")
+i = 0
+for o in origins:
+    o.set_distances(network)
+    i += 1
+    if i % 10 == 0:
+       print(i, "/", len(origins))
 
 # Perform analysis -----
 
