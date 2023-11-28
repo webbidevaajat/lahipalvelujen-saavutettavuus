@@ -33,7 +33,7 @@ class Origin(object):
         try:
             mask = network.points.within(self.centroid.buffer(config["access_radius"]))
             nearby_points = network.points.loc[mask]
-            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
+            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry.unary_union)
             nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
             nearest_value = nearest_data["id"].values[0]
             self.access_node = nearest_value
@@ -62,7 +62,7 @@ class Origin(object):
         for d in self.destinations:
             if d.category == category:
                 dist = self.distances[d.access_node]
-                distances.append(dist)                
+                distances.append(dist)           
         if distances: 
             # return shortest time, mins
             return (min(distances) / 1000 / (5 / 60))

@@ -41,7 +41,7 @@ class Destination(object):
         try:
             mask = network.points.within(self.centroid.buffer(config["access_radius"]))
             nearby_points = network.points.loc[mask]
-            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry)
+            nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry.unary_union)
             nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
             nearest_value = nearest_data["id"].values[0]
             self.access_node = nearest_value
