@@ -24,13 +24,18 @@
         },
         "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
         "services": {
-            "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/paivahoito.gpkg",
-            "school": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/koulut_opiskelu.gpkg",
-            "bank_post": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ppv.gpkg",
-            "culture": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/kulttuuri.gpkg",
-            "sports": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/liikuntapaikka.gpkg",
-            "health": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/terveyspalvelut.gpkg",
-            "restaurant": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ravintolat.gpkg"
+            "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
+            "school_primary": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/LuottamuksellisetMatkakohdeaineisto/Koulu_opiskelu/perusaste.gpkg",
+            "school_secondary": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/LuottamuksellisetMatkakohdeaineisto/Koulu_opiskelu/toinen_aste.gpkg",
+            "school_tertiary": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/LuottamuksellisetMatkakohdeaineisto/Koulu_opiskelu/kolmas_aste.gpkg",
+            "culture": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/",
+            "sports": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/",
+            "health_private": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Yksityiset_terveyspalvelut/healthcare.gpkg",
+            "health_public": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Julkiset_terveyspalvelut/healthcare.gpkg",
+            "restaurant": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Ravintola_kahvila/restaurant.gpkg",
+            "store_other": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_LahtotiedotLuottamukselliset/Matkakohdeaineisto/Muu_kauppa/muu_kauppa.gpkg"
+            "grocery_store": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_LahtotiedotLuottamukselliset/Matkakohdeaineisto/Paivittaistavarakauppa/grocery_store.gpkg"
+            "public_transport_stops": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Joukkoliikennepysakit/Pysakit_linjat.gpkg" 
         },
         "usage": {
             "kindergarten": 0.06,
