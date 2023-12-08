@@ -139,6 +139,6 @@ plot_grid(res, "a2_school_toinenaste", "viridis", label = "Lyhin matka-aika palv
 plot_grid(res, "a2_health_public", "viridis", label = "Lyhin matka-aika palveluun", title = "Julkiset terveyspalvelut​")
 plot_grid(res, "a2_health_private", "viridis", label = "Lyhin matka-aika palveluun", title = "Yksityiset terveyspalvelut​")
 plot_grid(res, "a2_groceries", "viridis", label = "Lyhin matka-aika palveluun", title = "Päivittäistavara​")
-plot_grid(res, "a2_total", "viridis", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")
+plot_grid(res, "a2_total", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")
 
 print("Process finished --- %s seconds ---" % (time.time() - start_time))
