@@ -22,7 +22,7 @@ try:
   config_env = config[sys.argv[1]]
 except:
   print("No enviroment set. Using test enviroment ..")
-  config_env = config["test"]
+  config_env = config["Vantaa"]
 
 # Load data ----
 

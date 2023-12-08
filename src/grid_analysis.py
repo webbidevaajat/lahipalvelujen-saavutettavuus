@@ -4,6 +4,8 @@ import json
 import geopandas as gpd
 import os
 import numpy
+import time
+start_time = time.time()
 
 from utils.plotting import plot_grid
 from datatypes.origin import Origin
@@ -21,7 +23,7 @@ try:
   config_env = config[sys.argv[1]]
 except:
   print("No enviroment set. Using test enviroment ..")
-  config_env = config["test"]
+  config_env = config["Vantaa"]
 
 # Load admin regions ----
 
@@ -63,7 +65,7 @@ for service_type in config_env["services"]:
 print("Create origin objects ..")
 grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
-grid = grid.sjoin(admin_regions, predicate='within')
+grid = grid.sjoin(admin_regions, predicate='intersects')
 #grid = grid.iloc[1:100,]
 
 origins = []
@@ -98,13 +100,22 @@ for o in origins:
 print("Perform analysis ..")
 res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
-   "a1_school": [o.accessibility_index1(["school"]) for o in origins],
+
+   # Accessibility index 1: Valinnanvara
+   "a1_school_kolmasaste": [o.accessibility_index1(["school_kolmasaste"]) for o in origins],
    "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
+   "a1_other_shops": [o.accessibility_index1(["grocery_store"]) for o in origins],
+   "a1_public_transport_stops": [o.accessibility_index1(["public_transport_stops"]) for o in origins],
    "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
-   "a1_health": [o.accessibility_index1(["health"]) for o in origins],
    "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
-   "a2_school": [o.accessibility_index2(["school"]) for o in origins],
-   "a2_sports": [o.accessibility_index2(["sports"]) for o in origins],
+
+   # Accessibility index 2: Lähin palvelu
+   "a2_kindergarten": [o.accessibility_index1(["kindergarten"]) for o in origins],
+   "a2_school_perusaste": [o.accessibility_index1(["school_perusaste"]) for o in origins],
+   "a2_school_toinenaste": [o.accessibility_index1(["school_toinenaste"]) for o in origins],
+   "a2_groceries": [o.accessibility_index1(["grocery_store"]) for o in origins],
+   "a2_health_public": [o.accessibility_index1(["health_public"]) for o in origins],
+   "a2_health_private": [o.accessibility_index1(["health_private"]) for o in origins],
    "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
@@ -115,12 +126,19 @@ for column in cols:
 # Plot ----
 
 print("Plot analysis ..")
-plot_grid(res, "a1_school", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Koulut")
+plot_grid(res, "a1_school_kolmasaste", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Koulut: Kolmasaste")
 plot_grid(res, "a1_restaurant", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Ravintolat")
+plot_grid(res, "a1_other_shops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Muu kauppa​")
+plot_grid(res, "a1_public_transport_stops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Joukkoliikennepysäkit")
 plot_grid(res, "a1_sports", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Liikuntapaikat")
-plot_grid(res, "a1_health", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Terveyspalvelut")
 plot_grid(res, "a1_total", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Yhdistelmä")
 
-plot_grid(res, "a2_sports", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Liikuntapaikat")
-plot_grid(res, "a2_school", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Koulut")
-plot_grid(res, "a2_total", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")
+plot_grid(res, "a2_kindergarten", "viridis", label = "Lyhin matka-aika palveluun", title = "Päivähoito")
+plot_grid(res, "a2_school_perusaste", "viridis", label = "Lyhin matka-aika palveluun", title = "Koulut: Perusaste")
+plot_grid(res, "a2_school_toinenaste", "viridis", label = "Lyhin matka-aika palveluun", title = "Koulut: Toinenaste")
+plot_grid(res, "a2_health_public", "viridis", label = "Lyhin matka-aika palveluun", title = "Julkiset terveyspalvelut​")
+plot_grid(res, "a2_health_private", "viridis", label = "Lyhin matka-aika palveluun", title = "Yksityiset terveyspalvelut​")
+plot_grid(res, "a2_groceries", "viridis", label = "Lyhin matka-aika palveluun", title = "Päivittäistavara​")
+plot_grid(res, "a2_total", "viridis", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")
+
+print("Process finished --- %s seconds ---" % (time.time() - start_time))
