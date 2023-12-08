@@ -107,6 +107,7 @@ res = gpd.GeoDataFrame({
    "a1_other_shops": [o.accessibility_index1(["grocery_store"]) for o in origins],
    "a1_public_transport_stops": [o.accessibility_index1(["public_transport_stops"]) for o in origins],
    "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
+   "a1_culture": [o.accessibility_index1(["culture"]) for o in origins],
    "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
 
    # Accessibility index 2: Lähin palvelu
@@ -131,6 +132,7 @@ plot_grid(res, "a1_restaurant", "viridis", label = "Valintamahdollisuuksien inde
 plot_grid(res, "a1_other_shops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Muu kauppa​")
 plot_grid(res, "a1_public_transport_stops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Joukkoliikennepysäkit")
 plot_grid(res, "a1_sports", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Liikuntapaikat")
+plot_grid(res, "a1_culture", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Virkistys- tai kulttuurikohde")
 plot_grid(res, "a1_total", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Yhdistelmä")
 
 plot_grid(res, "a2_kindergarten", "viridis", label = "Lyhin matka-aika palveluun", title = "Päivähoito")
