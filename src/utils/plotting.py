@@ -63,6 +63,6 @@ def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", ti
 
     # Save the figure as png file with resolution of 300 dpi
     outfp = "results/" + colname + ".png"
-    plt.savefig(outfp, dpi=300)
+    plt.savefig(outfp, dpi=500)
 
     print("Exported {} accessibility map ..".format(colname))
