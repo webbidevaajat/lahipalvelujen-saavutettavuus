@@ -27,7 +27,6 @@ class Origin(object):
         self.name = None
         self.admin_region = admin_region
         self.dest_radius = config["destination_radius"]
-        self.decay = config["decay"]
 
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
@@ -81,19 +80,7 @@ class Origin(object):
         if isinstance(categories, list):
             for d in self.destinations:
                 if d.category in categories:
-                    if 0 <= self.distances[d.access_node] <= 100:
-                        decay = self.decay["0km"]
-                    elif 100 < self.distances[d.access_node] <= 1000:
-                        decay = self.decay["0-1km"]
-                    elif 1000 < self.distances[d.access_node] <= 2000:
-                        decay = self.decay["1-2km"]
-                    elif 2000 < self.distances[d.access_node] <= 3000:
-                        decay = self.decay["2-3km"]
-                    elif 3000 < self.distances[d.access_node] <= 5000:
-                        decay = self.decay["3-5km"]
-                    else:
-                        decay = 0
-
+                    decay = numpy.exp(-0.7 * (self.distances[d.access_node] / 1000) + 0.35)
                     idx.append(decay * d.usage)
         else:
             raise TypeError("Categories argument is not a list.")
