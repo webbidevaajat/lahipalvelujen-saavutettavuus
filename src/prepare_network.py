@@ -2,14 +2,11 @@
 import sys
 import json
 import geopandas as gpd
-import os
-import numpy
-
+import numpy as np
 import json
-import networkx as nx
 from shapely.ops import unary_union
 import geopandas as gpd
-from shapely.geometry import LineString, Point
+from shapely.geometry import Point
 
 # Set up config env -----
 
@@ -26,15 +23,13 @@ except:
 
 # Load data ----
 
-print("Load data from {} ..".format(config_env["network"]))
+print("Load network from {} ..".format(config_env["network"]))
 network_gdf = gpd.read_file(config_env["network"], engine = "pyogrio")
 network_gdf = network_gdf.to_crs(config["crs"])
 
 # Operations ----
 
-n = network_gdf.geometry
-n = unary_union(n)
-
+n = network_gdf.geometry.unary_union
 lines = list(n.geoms)
 points = list()
 for line in lines:
@@ -44,10 +39,21 @@ points = set(points)
 points = [Point(c) for c in points]
 
 points = gpd.GeoDataFrame({"geometry": points}, geometry="geometry", crs=config["crs"]) 
-points["id"] = points.index + 1
-        
 lines = gpd.GeoDataFrame({"geometry": lines}, geometry="geometry", crs=config["crs"]) 
+
+# Remove isolated lines ----
+
+line_overlaps = lines.sjoin(lines, predicate="intersects", lsuffix="")
+line_overlaps = line_overlaps.loc[line_overlaps.index != line_overlaps.index_right]
+overlaps_ids = np.unique(line_overlaps.index)
+lines = lines.iloc[overlaps_ids].reset_index(drop=True)
+
+# Set ids ----
+
 lines["id"] = lines.index + 1
+points["id"] = points.index + 1
+
+# Get points and lines ----
 
 start_points = list()
 last_points = list()
@@ -60,9 +66,9 @@ lines_start["id"] = lines_start.index + 1
 
 lines_end = gpd.GeoDataFrame({"geometry": last_points}, geometry="geometry", crs=config["crs"]) 
 lines_end["id"] = lines_end.index + 1
-        
+
 points.geometry = points.centroid.buffer(0.1)
-        
+
 lines_start = lines_start.sjoin(points, predicate='within', lsuffix='line', rsuffix='start')
 lines_start = lines_start[["id_line", "id_start"]]
 
