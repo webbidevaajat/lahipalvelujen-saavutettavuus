@@ -23,7 +23,7 @@ try:
   config_env = config[sys.argv[1]]
 except:
   print("No enviroment set. Using test enviroment ..")
-  config_env = config["Vantaa"]
+  config_env = config["test"]
 
 # Load admin regions ----
 
