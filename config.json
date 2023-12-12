@@ -2,11 +2,11 @@
 {
     "crs": "EPSG:3879",
     "destination_radius": 3000,
-    "access_radius": 500,
+    "access_radius": 300,
     "basemap": {
         "roads": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_tie_viiva_1milj.shp",
         "railways": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_rautatie_viiva_1milj.shp",
-        "paths": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
+        "paths": "./results/lines.gpkg",
         "water": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/MML/mml_vesi_alue_1milj.shp",
         "names": {
             "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/HSY/asemat_pisteina.gpkg", 
@@ -19,31 +19,27 @@
             "column": "name"
         },
         "origins": {
-            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test_data/ruudukko_test_250m.gpkg",
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_250m_test.gpkg",
             "column": "id"
         },
-        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_test.gpkg",
+        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Network/osm_ways_test.gpkg",
         "services": {
-            "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
-            "culture": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Virkistys_kulttuurikohde/Julk_r.gpkg",
-            "sports": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Liikuntapaikka/sports.gpkg",
-            "grocery_store": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivittaistavarakauppa/ruokakauppa.gpkg"
+            "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test/osm_amenity_kindergarten.gpkg",
+            "sports": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test/osm_amenity_school.gpkg",
+            "grocery_store": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Test/osm_amenity_restaurant.gpkg"
         },
         "usage": {
             "kindergarten": 0.05,
-            "culture": 0.03,
             "sports": 0.09,
             "grocery_store": 0.25
         },
         "provider": {
             "kindergarten": "goverment",
-            "culture": "private",
             "sports": "goverment",
             "grocery_store": "private"
         },
         "admin_matters": {
             "kindergarten": "True",
-            "culture": "False",
             "sports": "False",
             "grocery_store": "False"
         }
@@ -54,10 +50,10 @@
             "column": "name"
         },
         "origins": {
-            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_vantaa_100m.gpkg",
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_100m_Vantaa.gpkg",
             "column": "id"
         },
-        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_Vantaa.gpkg",
+        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Network/osm_ways_Vantaa.gpkg",
         "services": {
             "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
             "school_perusaste": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Koulu_opiskelu/perusaste.gpkg",
@@ -121,10 +117,10 @@
             "column": "name"
         },
         "origins": {
-            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_100m.gpkg",
+            "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_100m_pks.gpkg",
             "column": "id"
         },
-        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/OSM/osm_ways_pks.gpkg",
+        "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Network/osm_ways_pks.gpkg",
         "services": {
             "kindergarten": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
             "school_perusaste": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Koulu_opiskelu/perusaste.gpkg",
