@@ -1,7 +1,6 @@
 import json
 import numpy
 from shapely.ops import nearest_points
-import networkx as nx
 
 # Open yaml config file
 with open('config.json') as f:
@@ -30,14 +29,14 @@ class Origin(object):
 
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
-        try:
-            mask = network.points.within(self.centroid.buffer(config["access_radius"]))
+        mask = network.points.within(self.centroid.buffer(config["access_radius"]))
+        if any(mask):
             nearby_points = network.points.loc[mask]
             nearest_geoms  = nearest_points(self.centroid, nearby_points.geometry.unary_union)
             nearest_data = nearby_points.loc[nearby_points.geometry == nearest_geoms[1]]
             nearest_value = nearest_data["id"].values[0]
             self.access_node = nearest_value
-        except:
+        else:
             self.access_node = None
 
     def set_distances(self, network):
