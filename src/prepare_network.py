@@ -80,6 +80,9 @@ points.geometry = points.centroid
 lines = lines.merge(lines_start, left_on="id", right_on="id_line", how='left')
 lines = lines.merge(lines_end, left_on="id", right_on="id_line", how='left')
 
+keep_ids = lines.id_start.tolist() + lines.id_end.tolist()
+points = points[points.id.isin(keep_ids)]
+
 points["id"] = points["id"].astype("int")
 lines["id"] = lines["id"].astype("int")
 lines["id_end"] = lines["id_end"].astype("int")
