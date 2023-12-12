@@ -7,6 +7,7 @@ import json
 from shapely.ops import unary_union
 import geopandas as gpd
 from shapely.geometry import Point
+import networkx as nx
 
 # Set up config env -----
 
@@ -41,13 +42,6 @@ points = [Point(c) for c in points]
 points = gpd.GeoDataFrame({"geometry": points}, geometry="geometry", crs=config["crs"]) 
 lines = gpd.GeoDataFrame({"geometry": lines}, geometry="geometry", crs=config["crs"]) 
 
-# Remove isolated lines ----
-
-line_overlaps = lines.sjoin(lines, predicate="intersects", lsuffix="")
-line_overlaps = line_overlaps.loc[line_overlaps.index != line_overlaps.index_right]
-overlaps_ids = np.unique(line_overlaps.index)
-lines = lines.iloc[overlaps_ids].reset_index(drop=True)
-
 # Set ids ----
 
 lines["id"] = lines.index + 1
@@ -80,13 +74,22 @@ points.geometry = points.centroid
 lines = lines.merge(lines_start, left_on="id", right_on="id_line", how='left')
 lines = lines.merge(lines_end, left_on="id", right_on="id_line", how='left')
 
-keep_ids = lines.id_start.tolist() + lines.id_end.tolist()
-points = points[points.id.isin(keep_ids)]
-
 points["id"] = points["id"].astype("int")
 lines["id"] = lines["id"].astype("int")
 lines["id_end"] = lines["id_end"].astype("int")
 lines["id_start"] = lines["id_start"].astype("int")
+
+# Get largest subgraph ----
+
+g = nx.Graph()
+for index, row in lines.iterrows():
+   g.add_edge(row["id_start"], row["id_end"], dist = row['geometry'].length)
+
+Gcc = sorted(nx.connected_components(g), key=len, reverse=True)
+giant = g.subgraph(Gcc[0])
+
+points = points[points.id.isin(giant.nodes)]
+lines = lines[lines[["id_start", "id_end"]].isin(giant.nodes).any(axis=1)]
 
 # Save to file ----
 
