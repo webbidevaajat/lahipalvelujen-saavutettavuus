@@ -76,19 +76,28 @@ for index, row in grid.iterrows():
             admin_region = row["admin_name"]
     ))
 
-print("Add access nodes ..")
+print("Add destination access nodes ..")
+i = 0
 for d in destinations:
    d.set_access_node(network)
+   i += 1
+   if i % 1000 == 0:
+      print(i, "/", len(destinations))
 
+print("Add origin access nodes ..")
+i = 0
 for o in origins:
    o.set_access_node(network)
+   i += 1
+   if i % 1000 == 0:
+      print(i, "/", len(origins))
 
 print("Get distances nodes ..")
 i = 0
 for o in origins:
     o.set_distances(network)
     i += 1
-    if i % 100 == 0:
+    if i % 1000 == 0:
        print(i, "/", len(origins))
 
 print("Search reachable destinations for origins ..")
