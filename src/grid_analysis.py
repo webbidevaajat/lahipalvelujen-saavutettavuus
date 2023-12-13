@@ -66,7 +66,6 @@ print("Create origin objects ..")
 grid = gpd.read_file(config_env["origins"]["file"], engine = "pyogrio")
 grid = grid.to_crs(config["crs"])
 grid = grid.sjoin(admin_regions, predicate='intersects')
-#grid = grid.iloc[1:100,]
 
 origins = []
 for index, row in grid.iterrows():
