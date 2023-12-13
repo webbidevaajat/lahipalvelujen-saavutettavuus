@@ -68,7 +68,7 @@ class Origin(object):
         else:
             return (self.dest_radius / 1000 / (5 / 60)) 
 
-    def accessibility_index1(self, categories):
+    def aindex_decay(self, categories):
         """
         Accessibility Index calculation option 1.
         AIndex is based on usage rate of service type and distance decay to location.
@@ -86,7 +86,7 @@ class Origin(object):
         # return sum for origin
         return sum(idx)
     
-    def accessibility_index2(self, categories):
+    def aindex_closest(self, categories):
         """
         Accessibility Index calculation option 2.
         AIndex is calculated as mean time for closest service in each category.
