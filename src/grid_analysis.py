@@ -111,22 +111,22 @@ res = gpd.GeoDataFrame({
    "geometry": [o.geom for o in origins],
 
    # Accessibility index 1: Valinnanvara
-   "a1_school_kolmasaste": [o.accessibility_index1(["school_kolmasaste"]) for o in origins],
-   "a1_restaurant": [o.accessibility_index1(["restaurant"]) for o in origins],
-   "a1_other_shops": [o.accessibility_index1(["grocery_store"]) for o in origins],
-   "a1_public_transport_stops": [o.accessibility_index1(["public_transport_stops"]) for o in origins],
-   "a1_sports": [o.accessibility_index1(["sports"]) for o in origins],
-   "a1_culture": [o.accessibility_index1(["culture"]) for o in origins],
-   "a1_total": [o.accessibility_index1(list(config_env["services"])) for o in origins],
+   "a1_school_kolmasaste": [o.aindex_decay(["school_kolmasaste"]) for o in origins],
+   "a1_restaurant": [o.aindex_decay(["restaurant"]) for o in origins],
+   "a1_other_shops": [o.aindex_decay(["grocery_store"]) for o in origins],
+   "a1_public_transport_stops": [o.aindex_decay(["public_transport_stops"]) for o in origins],
+   "a1_sports": [o.aindex_decay(["sports"]) for o in origins],
+   "a1_culture": [o.aindex_decay(["culture"]) for o in origins],
+   "a1_total": [o.aindex_decay(list(config_env["services"])) for o in origins],
 
    # Accessibility index 2: Lähin palvelu
-   "a2_kindergarten": [o.accessibility_index2(["kindergarten"]) for o in origins],
-   "a2_school_perusaste": [o.accessibility_index2(["school_perusaste"]) for o in origins],
-   "a2_school_toinenaste": [o.accessibility_index2(["school_toinenaste"]) for o in origins],
-   "a2_groceries": [o.accessibility_index2(["grocery_store"]) for o in origins],
-   "a2_health_public": [o.accessibility_index2(["health_public"]) for o in origins],
-   "a2_health_private": [o.accessibility_index2(["health_private"]) for o in origins],
-   "a2_total": [o.accessibility_index2(list(config_env["services"])) for o in origins]
+   "a2_kindergarten": [o.aindex_closest(["kindergarten"]) for o in origins],
+   "a2_school_perusaste": [o.aindex_closest(["school_perusaste"]) for o in origins],
+   "a2_school_toinenaste": [o.aindex_closest(["school_toinenaste"]) for o in origins],
+   "a2_groceries": [o.aindex_closest(["grocery_store"]) for o in origins],
+   "a2_health_public": [o.aindex_closest(["health_public"]) for o in origins],
+   "a2_health_private": [o.aindex_closest(["health_private"]) for o in origins],
+   "a2_total": [o.aindex_closest(list(config_env["services"])) for o in origins]
    }, geometry="geometry", crs=config["crs"])
 
 cols = res.columns[res.columns.str.startswith('a1')]
