@@ -9,13 +9,15 @@ with open('config.json') as f:
 
 config_map = config["basemap"]
 
-def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", title = ""):
+
+def plot_grid(data, colname, service_geom, cmap = "viridis", label = "Accessibility Index", title = ""):
     """
     Plot function for accessibility graphs.
     """
 
     # Create one subplot. Control figure size in here.
     fig, ax = plt.subplots(figsize=(12, 8))
+    #plt.style.use('dark_background')
 
     # Visualize the travel times into 9 classes using "Quantiles" classification scheme
     data.plot(
@@ -48,7 +50,12 @@ def plot_grid(data, colname, cmap = "viridis", label = "Accessibility Index", ti
     railways.plot(ax=ax, color="black", linestyle="--", linewidth=0.5)
     for x, y, label in zip(names.geometry.x, names.geometry.y, names[config_map["names"]["column"]]):
         ax.annotate(label, xy=(x, y), xytext=(3, 3), textcoords="offset points", fontsize=8, color='white')
-
+    
+    # Plot services
+    if service_geom is not None:
+        service_geom = service_geom.loc[service_geom.within(data.unary_union)]
+        service_geom.plot(ax=ax, color="black", markersize=2.0)
+        service_geom.plot(ax=ax, color="white", markersize=1.0)
 
     # Remove the empty white-space around the axes
     ax.set_axis_off()
