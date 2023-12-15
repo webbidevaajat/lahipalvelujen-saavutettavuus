@@ -56,52 +56,60 @@ class Origin(object):
                 else: 
                     self.destinations.append(d)
 
-    def get_shortest_dist(self, category):
+    def n_destinations(self, category):
+        n = 0
+        for d in self.destinations:
+            if d.category == category:
+                n += 1
+        return n
+
+    def get_shortest_dist(self, category, i):
+        """
+        Return shortest distance to i service locations in category.
+        Return unit is meters.
+        """
         distances = list()
         for d in self.destinations:
             if d.category == category:
                 dist = self.distances[d.access_node]
                 distances.append(dist)           
-        if distances: 
-            # return shortest time, mins
-            return (min(distances) / 1000 / (5 / 60))
+        # return radius if less than i destinations found
+        if len(distances) > i:
+            pass
         else:
-            return (self.dest_radius / 1000 / (5 / 60)) 
+            distances = distances + [self.dest_radius] * 10
+        return sorted(distances)[:i]
 
-    def aindex_decay(self, categories):
+    def aindex_choice(self, category):
         """
-        Accessibility Index calculation option 1.
-        AIndex is based on usage rate of service type and distance decay to location.
+        Accessibility Index 1:
+        Based on distance decay and size factor of destination.
 
         """
         idx = list()
         # calculate over all destinations within origin radius
-        if isinstance(categories, list):
+        if isinstance(category, str):
             for d in self.destinations:
-                if d.category in categories:
-                    decay = numpy.exp(-0.7 * (self.distances[d.access_node] / 1000) + 0.35)
-                    idx.append(decay * d.usage)
+                if d.category == category:
+                    dist = self.distances[d.access_node]
+                    decay = numpy.exp(-0.7 * (dist / 1000) + 0.35)
+                    idx.append(decay * d.size)
         else:
-            raise TypeError("Categories argument is not a list.")
+            raise TypeError("Category argument is not a sting")
         # return sum for origin
         return sum(idx)
     
-    def aindex_closest(self, categories):
+    def aindex_closest(self, category, i = 1):
         """
-        Accessibility Index calculation option 2.
-        AIndex is calculated as mean time for closest service in each category.
+        Accessibility Index 2:
+        Calculated as mean time for i closest service.
         
         """
-        idx = list()
-        # calculate over all destinations within origin radius
-        if isinstance(categories, list):
-            for category in categories:
-                idx.append(self.get_shortest_dist(category))
+        if isinstance(category, str):
+            idx = self.get_shortest_dist(category, i)
         else:
-            raise TypeError("Categories argument is not a list.")
-        # Return mean of min travel times
-        if idx:
-            return (sum(idx) / len(idx))
-        else:
-            return (self.dest_radius / 1000 / (5 / 60)) 
+            raise TypeError("Category argument is not a sting")
+        # Return mean of length travel times
+        return sum(idx) / len(idx)
+
     
