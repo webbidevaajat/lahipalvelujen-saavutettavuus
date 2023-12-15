@@ -8,7 +8,8 @@ with open('config.json') as f:
 
 class Destination(object):
     id_counter = 0
-    def __init__(self, category, usage, provider, geometry, admin_matters, admin_region):
+    def __init__(self, category, usage, provider, geometry, 
+                 admin_matters, admin_region, size = 1):
         """
         Origin point for which accessibility is calculted.
         
@@ -35,6 +36,7 @@ class Destination(object):
         self.geometry = geometry
         self.centroid = geometry.centroid
         self.crs = config["crs"]
+        self.size = size
 
     def set_access_node(self, network):
         # Find the nearest nodes in a graph
