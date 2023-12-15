@@ -47,7 +47,7 @@ destinations = list()
 for service_type in config_env["services"]:
     gdf = gpd.read_file(config_env["services"][service_type], engine = "pyogrio")
     gdf = gdf.to_crs(config["crs"])
-    gdf = gdf.sjoin(admin_regions, predicate='within')
+    gdf = gdf.sjoin(admin_regions, how="inner", predicate="intersects")
     for index, row in gdf.iterrows():
       destinations.append(
          Destination(
@@ -105,50 +105,59 @@ for o in origins:
 
 # Perform analysis -----
 
+def rescale1(col):
+   return 100 * (col - min(col)) / (max(col) - min(col))
+
+def rescale2(col):
+   return 100 * (col - max(col)) / (min(col) - max(col))
+
 print("Perform analysis ..")
-res = gpd.GeoDataFrame({
-   "geometry": [o.geom for o in origins],
+res = gpd.GeoDataFrame({"geometry": [o.geom for o in origins]}, geometry="geometry", crs=config["crs"])
 
-   # Accessibility index 1: Valinnanvara
-   "a1_school_kolmasaste": [o.aindex_decay(["school_kolmasaste"]) for o in origins],
-   "a1_restaurant": [o.aindex_decay(["restaurant"]) for o in origins],
-   "a1_other_shops": [o.aindex_decay(["grocery_store"]) for o in origins],
-   "a1_public_transport_stops": [o.aindex_decay(["public_transport_stops"]) for o in origins],
-   "a1_sports": [o.aindex_decay(["sports"]) for o in origins],
-   "a1_culture": [o.aindex_decay(["culture"]) for o in origins],
-   "a1_total": [o.aindex_decay(list(config_env["services"])) for o in origins],
+a1 = ["school_kolmasaste", "restaurant", "other_shops", "public_transport_stops", "sports", "culture"]
+for service_type in a1:
+    res[service_type] = [o.aindex_choice(service_type) for o in origins]
+    res["s_" + service_type] = rescale1(res[service_type])
 
-   # Accessibility index 2: Lähin palvelu
-   "a2_kindergarten": [o.aindex_closest(["kindergarten"]) for o in origins],
-   "a2_school_perusaste": [o.aindex_closest(["school_perusaste"]) for o in origins],
-   "a2_school_toinenaste": [o.aindex_closest(["school_toinenaste"]) for o in origins],
-   "a2_groceries": [o.aindex_closest(["grocery_store"]) for o in origins],
-   "a2_health_public": [o.aindex_closest(["health_public"]) for o in origins],
-   "a2_health_private": [o.aindex_closest(["health_private"]) for o in origins],
-   "a2_total": [o.aindex_closest(list(config_env["services"])) for o in origins]
-   }, geometry="geometry", crs=config["crs"])
+a2 = ["school_perusaste", "school_toinenaste", "health_public", "health_private"]
+for service_type in a2:
+    res[service_type] = [o.aindex_closest(service_type) for o in origins]
+    res["s_" + service_type] = rescale2(res[service_type])
 
-cols = res.columns[res.columns.str.startswith('a1')]
-for column in cols:
-    res[column] = 100 * res[column] / max(res[column])
+a3 = ["kindergarten", "grocery_store"]
+for service_type in a3:
+    res[service_type] = [o.aindex_closest(service_type, 3) for o in origins]
+    res["s_" + service_type] = rescale2(res[service_type])
+
+res["total_index"] = 0
+for service_type in config_env["services"]:
+   res["total_index"] += res["s_" + service_type] * config_env["usage"][service_type]
 
 # Plot ----
 
+# Get category destinations geometry
+def get_geom(service_type):
+    gdf = gpd.read_file(config_env["services"][service_type], engine = "pyogrio")
+    gdf = gdf.to_crs(config["crs"])
+    return gdf.geometry
+
 print("Plot analysis ..")
-plot_grid(res, "a1_school_kolmasaste", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Koulut: Kolmasaste")
-plot_grid(res, "a1_restaurant", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Ravintolat")
-plot_grid(res, "a1_other_shops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Muu kauppa​")
-plot_grid(res, "a1_public_transport_stops", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Joukkoliikennepysäkit")
-plot_grid(res, "a1_sports", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Liikuntapaikat")
-plot_grid(res, "a1_culture", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Virkistys- tai kulttuurikohde")
-plot_grid(res, "a1_total", "viridis", label = "Valintamahdollisuuksien indeksi", title = "Yhdistelmä")
+plot_grid(res, "s_school_kolmasaste", get_geom("school_kolmasaste"), "viridis", label = "Valintaindeksi", title = "Koulut: Kolmas aste")
+plot_grid(res, "s_restaurant", get_geom("restaurant"), "viridis", label = "Valintaindeksi", title = "Ravintolat")
+plot_grid(res, "s_other_shops", get_geom("other_shops"), "viridis", label = "Valintaindeksi", title = "Muu kauppa​")
+plot_grid(res, "s_public_transport_stops", get_geom("public_transport_stops"), "viridis", label = "Valintaindeksi", title = "Joukkoliikennepysäkit")
+plot_grid(res, "s_sports", get_geom("sports"), "viridis", label = "Valintaindeksi", title = "Liikuntapaikat")
+plot_grid(res, "s_culture", get_geom("culture"), "viridis", label = "Valintaindeksi", title = "Virkistys- tai kulttuurikohde")
 
-plot_grid(res, "a2_kindergarten", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Päivähoito")
-plot_grid(res, "a2_school_perusaste", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Koulut: Perusaste")
-plot_grid(res, "a2_school_toinenaste", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Koulut: Toinenaste")
-plot_grid(res, "a2_health_public", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Julkiset terveyspalvelut​")
-plot_grid(res, "a2_health_private", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Yksityiset terveyspalvelut​")
-plot_grid(res, "a2_groceries", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Päivittäistavara​")
-plot_grid(res, "a2_total", "viridis_r", label = "Lyhin matka-aika palveluun", title = "Yhdistelmä")
+plot_grid(res, "kindergarten", get_geom("kindergarten"), "viridis_r", label = "Etäisyys kolmeen palveluun", title = "Päivähoito")
+plot_grid(res, "school_perusaste", get_geom("school_perusaste"), "viridis_r", label = "Etäisyys palveluun", title = "Koulut: Perusaste")
+plot_grid(res, "school_toinenaste", get_geom("school_toinenaste"), "viridis_r", label = "Etäisyys palveluun", title = "Koulut: Toinen aste")
+plot_grid(res, "health_public", get_geom("health_public"), "viridis_r", label = "Etäisyys palveluun", title = "Julkiset terveyspalvelut​")
+plot_grid(res, "health_private", get_geom("health_private"), "viridis_r", label = "Etäisyys palveluun", title = "Yksityiset terveyspalvelut​")
+plot_grid(res, "grocery_store", get_geom("grocery_store"), "viridis_r", label = "Etäisyys kolmeen palveluun", title = "Päivittäistavara​")
 
-print("Process finished --- %s seconds ---" % (time.time() - start_time))
+plot_grid(res, "total_index", None, "viridis", label = "Yhdistelmäindeksi", title = "Yhdistelmäindeksi")
+
+print("Process finished --- %s seconds ---" % round(time.time() - start_time))
+
+res.to_file("results/results.gpkg")
