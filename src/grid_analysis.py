@@ -123,16 +123,19 @@ res = gpd.GeoDataFrame({"geometry": [o.geom for o in origins]}, geometry="geomet
 
 a1 = ["school_kolmasaste", "restaurant", "other_shops", "public_transport_stops", "sports", "culture"]
 for service_type in a1:
+    print("Processing {} ..".format(service_type))
     res[service_type] = [o.aindex_choice(service_type) for o in origins]
     res["s_" + service_type] = rescale1(res[service_type])
 
 a2 = ["school_perusaste", "school_toinenaste", "health_public", "health_private"]
 for service_type in a2:
+    print("Processing {} ..".format(service_type))
     res[service_type] = [o.aindex_closest(service_type) for o in origins]
     res["s_" + service_type] = rescale2(res[service_type])
 
 a3 = ["kindergarten", "grocery_store"]
 for service_type in a3:
+    print("Processing {} ..".format(service_type))
     res[service_type] = [o.aindex_closest(service_type, 3) for o in origins]
     res["s_" + service_type] = rescale2(res[service_type])
 
