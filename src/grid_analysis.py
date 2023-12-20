@@ -19,16 +19,18 @@ with open('config.json') as f:
    config = json.load(f)
 
 try:
-  print("Use environment", sys.argv[1])
-  config_env = config[sys.argv[1]]
+   print("Use config file:", sys.argv[1])
+   with open(sys.argv[1]) as f:
+      config_env = json.load(f)
 except:
-  print("No enviroment set. Using test enviroment ..")
-  config_env = config["test"]
+   print("No config-env as argument. Using config-test.json ..")
+   with open("config-test.json") as f:
+      config_env = json.load(f)
 
 # Load admin regions ----
 
-admin_regions = gpd.read_file(config_env["admin_regions"]["file"], engine = "pyogrio")
-admin_regions["admin_name"] = admin_regions[config_env["admin_regions"]["column"]]
+admin_regions = gpd.read_file(config["admin_regions"]["file"], engine = "pyogrio")
+admin_regions["admin_name"] = admin_regions[config["admin_regions"]["column"]]
 admin_regions = admin_regions.to_crs(config["crs"])
 
 # Network to calculate distances ----
@@ -45,20 +47,33 @@ network = Network(network_lines, network_points)
 print("Create destination objects ..")
 destinations = list()
 for service_type in config_env["services"]:
-    gdf = gpd.read_file(config_env["services"][service_type], engine = "pyogrio")
+    gdf = gpd.read_file(config_env["services"][service_type]["file"], engine = "pyogrio")
     gdf = gdf.to_crs(config["crs"])
     gdf = gdf.sjoin(admin_regions, how="inner", predicate="intersects")
     for index, row in gdf.iterrows():
-      destinations.append(
-         Destination(
-            category = service_type, 
-            geometry = row["geometry"],
-            usage = config_env["usage"][service_type],
-            provider = "goverment",
-            admin_matters = config_env["admin_matters"][service_type],
-            admin_region = row["admin_name"]
-        )
-    )
+        try:
+            destinations.append(
+                Destination(
+                    category = service_type, 
+                    geometry = row["geometry"],
+                    usage = config_env["services"][service_type]["usage_rate"],
+                    provider = config_env["services"][service_type]["provider"],
+                    admin_matters = config_env["services"][service_type]["admin_matters"],
+                    admin_region = row["admin_name"],
+                    size = row[config_env["services"][service_type]["size_column"]]
+                )
+            )
+        except KeyError:
+            destinations.append(
+                Destination(
+                    category = service_type, 
+                    geometry = row["geometry"],
+                    usage = config_env["services"][service_type]["usage_rate"],
+                    provider = config_env["services"][service_type]["provider"],
+                    admin_matters = config_env["services"][service_type]["admin_matters"],
+                    admin_region = row["admin_name"]
+                )
+            )
 
 # Prepare origins -----
 
@@ -131,13 +146,13 @@ for service_type in a3:
 
 res["total_index"] = 0
 for service_type in config_env["services"]:
-   res["total_index"] += res["s_" + service_type] * config_env["usage"][service_type]
+   res["total_index"] += res["s_" + service_type] * config_env["services"][service_type]["usage_rate"]
 
 # Plot ----
 
 # Get category destinations geometry
 def get_geom(service_type):
-    gdf = gpd.read_file(config_env["services"][service_type], engine = "pyogrio")
+    gdf = gpd.read_file(config_env["services"][service_type]["file"], engine = "pyogrio")
     gdf = gdf.to_crs(config["crs"])
     return gdf.geometry
 
