@@ -52,28 +52,20 @@ for service_type in config_env["services"]:
     gdf = gdf.sjoin(admin_regions, how="inner", predicate="intersects")
     for index, row in gdf.iterrows():
         try:
-            destinations.append(
-                Destination(
-                    category = service_type, 
-                    geometry = row["geometry"],
-                    usage = config_env["services"][service_type]["usage_rate"],
-                    provider = config_env["services"][service_type]["provider"],
-                    admin_matters = config_env["services"][service_type]["admin_matters"],
-                    admin_region = row["admin_name"],
-                    size = row[config_env["services"][service_type]["size_column"]]
-                )
-            )
+            s = row[config_env["services"][service_type]["size_column"]]
         except KeyError:
-            destinations.append(
-                Destination(
-                    category = service_type, 
-                    geometry = row["geometry"],
-                    usage = config_env["services"][service_type]["usage_rate"],
-                    provider = config_env["services"][service_type]["provider"],
-                    admin_matters = config_env["services"][service_type]["admin_matters"],
-                    admin_region = row["admin_name"]
-                )
+            s = 1
+        destinations.append(
+            Destination(
+                category = service_type, 
+                geometry = row["geometry"],
+                usage = config_env["services"][service_type]["usage_rate"],
+                provider = config_env["services"][service_type]["provider"],
+                admin_matters = config_env["services"][service_type]["admin_matters"],
+                admin_region = row["admin_name"],
+                size = s
             )
+        )
 
 # Prepare origins -----
 
