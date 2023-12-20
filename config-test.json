@@ -1,0 +1,31 @@
+
+{
+    "services": {
+        "kindergarten": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
+                "size_column": "",
+                "usage_rate": 0.05,
+                "provider": "goverment",
+                "admin_matters": "True"
+        },
+        "sports": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Liikuntapaikka/sports.gpkg",
+                "size_column": "",
+                "usage_rate": 0.09,
+                "provider": "goverment",
+                "admin_matters": "False"
+        },
+        "public_transport_stops": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Joukkoliikennepysakit/Pysakit_linjat_lahdot.gpkg",
+                "size_column": "LAHTO_LKM",
+                "usage_rate": 0.20,
+                "provider": "goverment",
+                "admin_matters": "False"
+        }
+    },
+    "origins": {
+        "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_250m_test.gpkg",
+        "column": "id"
+    },
+    "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Network/osm_ways_test.gpkg"
+}

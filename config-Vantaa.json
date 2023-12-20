@@ -1,0 +1,94 @@
+
+{
+    "services": {
+        "kindergarten": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivahoito/paivahoito.gpkg",
+                "size_column": "",
+                "usage_rate": 0.05,
+                "provider": "goverment",
+                "admin_matters": "True"
+        },
+        "school_perusaste": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Koulu_opiskelu/perusaste.gpkg",
+                "size_column": "",
+                "usage_rate": 0.06,
+                "provider": "goverment",
+                "admin_matters": "True"
+        },
+        "school_toinenaste": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Koulu_opiskelu/toinen_aste.gpkg",
+                "size_column": "",
+                "usage_rate": 0.04,
+                "provider": "goverment",
+                "admin_matters": "False"
+        },
+        "school_kolmasaste": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Koulu_opiskelu/kolmas_aste2.0.gpkg",
+                "size_column": "",
+                "usage_rate": 0.03,
+                "provider": "goverment",
+                "admin_matters": "False"
+        },
+        "culture": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Virkistys_kulttuurikohde/Julk_r.gpkg",
+                "size_column": "",
+                "usage_rate": 0.03,
+                "provider": "private",
+                "admin_matters": "False"
+        },
+        "sports": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Liikuntapaikka/sports.gpkg",
+                "size_column": "",
+                "usage_rate": 0.09,
+                "provider": "goverment",
+                "admin_matters": "False"
+        },
+        "health_private": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Yksityiset_terveyspalvelut/healthcare.gpkg",
+                "size_column": "",
+                "usage_rate": 0.03,
+                "provider": "private",
+                "admin_matters": "False"
+        },
+        "health_public": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Julkiset_terveyspalvelut/public_healthcare.gpkg",
+                "size_column": "",
+                "usage_rate": 0.03,
+                "provider": "goverment",
+                "admin_matters": "True"
+        },
+        "restaurant": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Ravintola_kahvila/restaurant.gpkg",
+                "size_column": "",
+                "usage_rate": 0.05,
+                "provider": "private",
+                "admin_matters": "False"
+        },
+        "other_shops": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Muu_kauppa/muu_kauppa.gpkg",
+                "size_column": "",
+                "usage_rate": 0.14,
+                "provider": "private",
+                "admin_matters": "False"
+        },
+        "grocery_store": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Paivittaistavarakauppa/ruokakauppa.gpkg",
+                "size_column": "",
+                "usage_rate": 0.25,
+                "provider": "private",
+                "admin_matters": "False"
+        },
+        "public_transport_stops": {
+                "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/2_Lahtotiedot/Luottamukselliset/Matkakohdeaineisto/Joukkoliikennepysakit/Pysakit_linjat_lahdot.gpkg",
+                "size_column": "LAHTO_LKM",
+                "usage_rate": 0.20,
+                "provider": "goverment",
+                "admin_matters": "False"
+        }
+    },
+    "origins": {
+        "file": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Grid/grid_100m_Vantaa.gpkg",
+        "column": "id"
+    },
+    "network": "N:/1000/319456_Lahipalvelujen_saavutettavuus/3_Tarkastelut/Network/osm_ways_Vantaa.gpkg"
+}
